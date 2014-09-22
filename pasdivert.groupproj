@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{BAAD6513-7256-4F26-A26E-BC48BCFD356D}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="passthru.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="netdump.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="passthru">
+        <MSBuild Projects="passthru.dproj"/>
+    </Target>
+    <Target Name="passthru:Clean">
+        <MSBuild Projects="passthru.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="passthru:Make">
+        <MSBuild Projects="passthru.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="netdump">
+        <MSBuild Projects="netdump.dproj"/>
+    </Target>
+    <Target Name="netdump:Clean">
+        <MSBuild Projects="netdump.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="netdump:Make">
+        <MSBuild Projects="netdump.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="passthru;netdump"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="passthru:Clean;netdump:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="passthru:Make;netdump:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
