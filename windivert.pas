@@ -236,7 +236,7 @@ type
     DstPort: UINT16;
     SeqNum: UINT32;
     AckNum: UINT32;
-    Reserved: UINT16;
+    Reserved1: UINT16;
     HdrLength: UINT16;
     Fin: UINT16;
     Syn: UINT16;

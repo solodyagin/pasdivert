@@ -14,12 +14,24 @@ const
 	MAXBUF = $FFFF;
 
 type
-	TAddr = packed array[0..3] of UINT8;
+	TIpv4Addr = packed array[0..3] of UINT8;
+  TIpv6Addr = packed array[0..7] of UINT16;
 
 resourcestring
 	SIpv4Hdr = 'IPv4 [Version=%d HdrLength=%d TOS=%d Length=%d Id=0x%.4x ' +
   	'Reserved=%d DF=%d MF=%d FragOff=%d TTL=%u Protocol=%d ' +
     'Checksum=0x%.4x SrcAddr=%d.%d.%d.%d DstAddr=%d.%d.%d.%d]';
+  SIpv6Hdr = 'IPv6 [Version=%u TrafficClass=%u FlowLabel=%u Length=%u ' +
+  	'NextHdr=%u HopLimit=%u ';
+  STcpHdr = 'TCP [SrcPort=%u DstPort=%u SeqNum=%u AckNum=%u ' +
+  	'HdrLength=%u Reserved1=%u Reserved2=%u Urg=%u Ack=%u ' +
+    'Psh=%u Rst=%u Syn=%u Fin=%u Window=%u Checksum=0x%.4X ' +
+    'UrgPtr=%u]';
+
+function isprint(const AC: AnsiChar): boolean;
+begin
+	Result := (Ord(AC) > $1F) and (Ord(AC) <> $7F);
+end;
 
 var
 	priority: INT16;
@@ -34,8 +46,11 @@ var
   icmpv6_header: PWinDivertIcmpv6Hdr;
   tcp_header: PWinDivertTcpHdr;
   udp_header: PWinDivertUdpHdr;
-  src_addr: TAddr;
-  dst_addr: TAddr;
+  src_v4addr: TIpv4Addr;
+  dst_v4addr: TIpv4Addr;
+  src_v6addr: TIpv6Addr;
+  dst_v6addr: TIpv6Addr;
+  i: integer;
 begin
   try
   	priority := 0;
@@ -103,8 +118,8 @@ begin
 
       if (ip_header <> nil) then begin
         SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
-        src_addr := TAddr(ip_header^.SrcAddr);
-        dst_addr := TAddr(ip_header^.DstAddr);
+        src_v4addr := TIpv4Addr(ip_header^.SrcAddr);
+        dst_v4addr := TIpv4Addr(ip_header^.DstAddr);
 
         WriteLn(Format(SIpv4Hdr, [
         	ip_header^.Version, ip_header^.HdrLength,
@@ -114,12 +129,101 @@ begin
           WINDIVERT_IPHDR_GET_MF(ip_header),
           ntohs(WINDIVERT_IPHDR_GET_FRAGOFF(ip_header)), ip_header^.TTL,
           ip_header^.Protocol, ntohs(ip_header^.Checksum),
-          src_addr[0], src_addr[1], src_addr[2], src_addr[3],
-          dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3]
+          src_v4addr[0], src_v4addr[1], src_v4addr[2], src_v4addr[3],
+          dst_v4addr[0], dst_v4addr[1], dst_v4addr[2], dst_v4addr[3]
         ]));
       end;
 
+      if (ipv6_header <> nil) then begin
+        SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
+        src_v6addr := TIpv6Addr((@ipv6_header^.SrcAddr)^);
+        dst_v6addr := TIpv6Addr((@ipv6_header^.DstAddr)^);
+        Write(Format(SIpv6Hdr, [
+        	ipv6_header^.Version,
+          WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(ipv6_header),
+          ntohl(WINDIVERT_IPV6HDR_GET_FLOWLABEL(ipv6_header)),
+          ntohs(ipv6_header^.Length), ipv6_header^.NextHdr,
+          ipv6_header^.HopLimit
+        ]));
+        for i := 0 to 7 do begin
+          Write(Format('%x', [ntohs(src_v6addr[i])]));
+          if (i <> 7) then
+          	Write(':')
+          else
+          	Write(' ');
+        end;
+        Write('DstAddr=');
+        for i := 0 to 7 do begin
+          Write(Format('%x', [ntohs(dst_v6addr[i])]));
+          if (i <> 7) then
+          	Write(':');
+        end;
+
+        WriteLn(']');
+      end;
+
+      if (icmp_header <> nil) then begin
+        SetConsoleTextAttribute(console, FOREGROUND_RED);
+        WriteLn(Format('ICMP [Type=%d Code=%d Checksum=0x%.4x Body=0x%.8x]', [
+        	icmp_header^._Type, icmp_header^.Code,
+          ntohs(icmp_header^.Checksum), ntohl(icmp_header^.Body)
+        ]));
+      end;
+
+      if (icmpv6_header <> nil) then begin
+      	SetConsoleTextAttribute(console, FOREGROUND_RED);
+        WriteLn(Format('ICMPV6 [Type=%d Code=%d Checksum=0x%.4x Body=0x%.8x]', [
+        	icmpv6_header^._Type, icmpv6_header^.Code,
+          ntohs(icmpv6_header^.Checksum), ntohl(icmpv6_header^.Body)
+        ]));
+      end;
+
+      if (tcp_header <> nil) then begin
+      	SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+        WriteLn(Format(STcpHdr, [
+        	ntohs(tcp_header^.SrcPort), ntohs(tcp_header^.DstPort),
+          ntohl(tcp_header^.SeqNum), ntohl(tcp_header^.AckNum),
+          tcp_header^.HdrLength, tcp_header^.Reserved1,
+          tcp_header^.Reserved2, tcp_header^.Urg, tcp_header^.Ack,
+          tcp_header^.Psh, tcp_header^.Rst, tcp_header^.Syn,
+          tcp_header^.Fin, ntohs(tcp_header^.Window),
+          ntohs(tcp_header^.Checksum), ntohs(tcp_header^.UrgPtr)
+        ]));
+      end;
+
+      if (udp_header <> nil) then begin
+      	SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+        WriteLn(Format('UDP [SrcPort=%d DstPort=%d Length=%d Checksum=0x%.4x]', [
+        	ntohs(udp_header^.SrcPort), ntohs(udp_header^.DstPort),
+          ntohs(udp_header^.Length), ntohs(udp_header^.Checksum)
+        ]));
+      end;
+
+      SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_BLUE);
+      for i := 0 to packet_len - 1 do begin
+      	if (i mod 20 = 0) then begin
+        	WriteLn;
+          Write(#9);
+        end;
+        Write(Format('%.2x', [packet[i]]));
+      end;
+
+      SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_BLUE);
+      for i := 0 to packet_len - 1 do begin
+        if (i mod 40 = 0) then begin
+          WriteLn;
+          Write(#9);
+        end;
+        if isprint(AnsiChar(packet[i])) then
+        	Write(AnsiChar(packet[i]))
+        else
+        	Write('.');
+      end;
+
       // More to come...
+
+      WriteLn;
+      SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
     end;
   except
     on E: Exception do
