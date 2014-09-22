@@ -220,8 +220,6 @@ begin
         	Write('.');
       end;
 
-      // More to come...
-
       WriteLn;
       SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
     end;

@@ -19,7 +19,9 @@ program directory.
 Examples
 --------
 
-Please run the examples as Adminsitrator.
+Please run these examples as Adminsitrator. To debug them with Delphi run Delphi
+as Adminsitrator.
 
-* passthru
-* netdump
+* `passthru` This program does nothing except divert packets and re-inject them.
+* `netdump` This is a simple traffic monitor.  It uses a WinDivert handle in SNIFF 
+  mode. The SNIFF mode copies packets and does not block the original.
