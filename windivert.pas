@@ -1,3 +1,25 @@
+{*
+ * windivert.pas
+ * (C) 2014, all rights reserved,
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *}
+
+{
+  Translation of windivert.h
+}
+
 unit windivert;
 
 interface
@@ -163,9 +185,9 @@ type
 
 // Macros
 function WINDIVERT_IPHDR_GET_FRAGOFF(hdr: PWinDivertIpHdr): UINT16;
-function WINDIVERT_IPHDR_GET_MF(hdr: PWinDivertIpHdr): Boolean;
-function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): Boolean;
-function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): Boolean;
+function WINDIVERT_IPHDR_GET_MF(hdr: PWinDivertIpHdr): UINT16;
+function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): UINT16;
+function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): UINT16;
 
 type  
   WINDIVERT_IPV6HDR = record
@@ -299,19 +321,28 @@ begin
   Result := hdr^.FragOff0 and $FF1F;
 end;
 
-function WINDIVERT_IPHDR_GET_MF(hdr: PWinDivertIpHdr): Boolean;
+function WINDIVERT_IPHDR_GET_MF(hdr: PWinDivertIpHdr): UINT16;
 begin
-  Result := (hdr^.FragOff0 and $0020) <> 0;
+  if (hdr^.FragOff0 and $0020) <> 0 then
+  	Result := 1
+  else
+  	Result := 0;
 end;
 
-function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): Boolean;
+function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): UINT16;
 begin
-  Result := (hdr^.FragOff0 and $0040) <> 0;
+  if (hdr^.FragOff0 and $0040) <> 0 then
+  	Result := 1
+  else
+  	Result := 0;
 end;
 
-function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): Boolean;
+function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): UINT16;
 begin
-  Result := (hdr^.FragOff0 and $0080) <> 0;
+  if (hdr^.FragOff0 and $0080) <> 0 then
+  	Result := 1
+  else
+  	Result := 0;
 end;
 
 function WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(hdr: PWinDivertIpv6Hdr): UINT8;
