@@ -25,7 +25,7 @@ unit windivert;
 interface
 
 uses
-	SysUtils, Windows;
+  SysUtils, Windows;
 
 type
   BOOL = LongBool;
@@ -39,7 +39,7 @@ type
   UINT64 = Int64;
   UINT = Cardinal;
   PUINT = ^UINT;
-  
+
 type
   WINDIVERT_ADDRESS = record
     IfIdx: UINT32;
@@ -48,33 +48,33 @@ type
   end;
   TWinDivertAddress = WINDIVERT_ADDRESS;
   PWinDivertAddress = ^TWinDivertAddress;
-  
+
 const
   WINDIVERT_DIRECTION_OUTBOUND = 0;
   WINDIVERT_DIRECTION_INBOUND = 1;
-  
+
 type
   WINDIVERT_LAYER = (
     WINDIVERT_LAYER_NETWORK,
     WINDIVERT_LAYER_NETWORK_FORWARD
   );
   TWinDivertLayer = WINDIVERT_LAYER;
-  
+
 const
   WINDIVERT_FLAG_SNIFF = 1;
   WINDIVERT_FLAG_DROP = 2;
   WINDIVERT_FLAG_NO_CHECKSUM = 1024;
-  
+
 type
   WINDIVERT_PARAM = (
     WINDIVERT_PARAM_QUEUE_LEN,
     WINDIVERT_PARAM_QUEUE_TIME
   );
   TWinDivertParam = WINDIVERT_PARAM;
-  
+
 const
   WINDIVERT_PARAM_MAX = WINDIVERT_PARAM_QUEUE_TIME;
-  
+
 {*
  * Open a WinDivert handle.
  *}
@@ -95,7 +95,7 @@ function WinDivertRecv(
   pAdd: PWinDivertAddress;
   var readLen: UINT
 ): BOOL; cdecl; external 'windivert.dll';
-  
+
 {*
  * Receive (read) a packet from a WinDivert handle.
  *}
@@ -130,7 +130,7 @@ function WinDivertSendEx(
   flags: UINT64;
   pAdd: PWinDivertAddress;
   var writeLen: UINT;
-  var lpOverlapped: POverlapped  
+  var lpOverlapped: POverlapped
 ): BOOL; cdecl; external 'windivert.dll';
 
 {*
@@ -189,7 +189,7 @@ function WINDIVERT_IPHDR_GET_MF(hdr: PWinDivertIpHdr): UINT16;
 function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): UINT16;
 function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): UINT16;
 
-type  
+type
   WINDIVERT_IPV6HDR = record
     TrafficClass0: UINT8;
     Version: UINT8;
@@ -205,7 +205,7 @@ type
   TWinDivertIpv6Hdr = WINDIVERT_IPV6HDR;
   PWinDivertIpv6Hdr = ^TWinDivertIpv6Hdr;
   PPWinDivertIpv6Hdr = ^PWinDivertIpv6Hdr;
-  
+
 // Macros
 function WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(hdr: PWinDivertIpv6Hdr): UINT8;
 function WINDIVERT_IPV6HDR_GET_FLOWLABEL(hdr: PWinDivertIpv6Hdr): UINT32;
@@ -220,7 +220,7 @@ type
   TWinDivertIcmpHdr = WINDIVERT_ICMPHDR;
   PWinDivertIcmpHdr = ^TWinDivertIcmpHdr;
   PPWinDivertIcmpHdr = ^PWinDivertIcmpHdr;
-  
+
   WINDIVERT_ICMPV6HDR = record
     _Type: UINT8;
     Code: UINT8;
@@ -230,7 +230,7 @@ type
   TWinDivertIcmpv6Hdr = WINDIVERT_ICMPV6HDR;
   PWinDivertIcmpv6Hdr = ^TWinDivertIcmpv6Hdr;
   PPWinDivertIcmpv6Hdr = ^PWinDivertIcmpv6Hdr;
-  
+
   WINDIVERT_TCPHDR = record
     SrcPort: UINT16;
     DstPort: UINT16;
@@ -252,7 +252,7 @@ type
   TWinDivertTcpHdr = WINDIVERT_TCPHDR;
   PWinDivertTcpHdr = ^TWinDivertTcpHdr;
   PPWinDivertTcpHdr = ^PWinDivertTcpHdr;
-  
+
   WINDIVERT_UDPHDR = record
     SrcPort: UINT16;
     DstPort: UINT16;
@@ -262,7 +262,7 @@ type
   TWinDivertUdpHdr = WINDIVERT_UDPHDR;
   PWinDivertUdpHdr = ^TWinDivertUdpHdr;
   PPWinDivertUdpHdr = ^PWinDivertUdpHdr;
-  
+
 {*
  * Flags for DivertHelperCalcChecksums()
  *}
@@ -324,25 +324,25 @@ end;
 function WINDIVERT_IPHDR_GET_MF(hdr: PWinDivertIpHdr): UINT16;
 begin
   if (hdr^.FragOff0 and $0020) <> 0 then
-  	Result := 1
+    Result := 1
   else
-  	Result := 0;
+    Result := 0;
 end;
 
 function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): UINT16;
 begin
   if (hdr^.FragOff0 and $0040) <> 0 then
-  	Result := 1
+    Result := 1
   else
-  	Result := 0;
+    Result := 0;
 end;
 
 function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): UINT16;
 begin
   if (hdr^.FragOff0 and $0080) <> 0 then
-  	Result := 1
+    Result := 1
   else
-  	Result := 0;
+    Result := 0;
 end;
 
 function WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(hdr: PWinDivertIpv6Hdr): UINT8;
