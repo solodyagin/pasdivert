@@ -1,3 +1,21 @@
+{*
+ * netdump
+ * (C) 2014, all rights reserved,
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *}
+
 program netdump;
 
 {$APPTYPE CONSOLE}
@@ -11,33 +29,33 @@ uses
   windivert in 'windivert.pas';
 
 const
-	MAXBUF = $FFFF;
+  MAXBUF = $FFFF;
 
 type
-	TIpv4Addr = packed array[0..3] of UINT8;
+  TIpv4Addr = packed array[0..3] of UINT8;
   TIpv6Addr = packed array[0..7] of UINT16;
 
 resourcestring
-	SIpv4Hdr = 'IPv4 [Version=%d HdrLength=%d TOS=%d Length=%d Id=0x%.4x ' +
-  	'Reserved=%d DF=%d MF=%d FragOff=%d TTL=%u Protocol=%d ' +
+  SIpv4Hdr = 'IPv4 [Version=%d HdrLength=%d TOS=%d Length=%d Id=0x%.4x ' +
+    'Reserved=%d DF=%d MF=%d FragOff=%d TTL=%u Protocol=%d ' +
     'Checksum=0x%.4x SrcAddr=%d.%d.%d.%d DstAddr=%d.%d.%d.%d]';
   SIpv6Hdr = 'IPv6 [Version=%u TrafficClass=%u FlowLabel=%u Length=%u ' +
-  	'NextHdr=%u HopLimit=%u ';
+    'NextHdr=%u HopLimit=%u ';
   STcpHdr = 'TCP [SrcPort=%u DstPort=%u SeqNum=%u AckNum=%u ' +
-  	'HdrLength=%u Reserved1=%u Reserved2=%u Urg=%u Ack=%u ' +
+    'HdrLength=%u Reserved1=%u Reserved2=%u Urg=%u Ack=%u ' +
     'Psh=%u Rst=%u Syn=%u Fin=%u Window=%u Checksum=0x%.4X ' +
     'UrgPtr=%u]';
 
 function isprint(const AC: AnsiChar): boolean;
 begin
-	Result := (Ord(AC) > $1F) and (Ord(AC) <> $7F);
+  Result := (Ord(AC) > $1F) and (Ord(AC) <> $7F);
 end;
 
 var
-	priority: INT16;
+  priority: INT16;
   handle, console: THandle;
   filter: string;
-  packet: array[0..MAXBUF] of Byte;
+  packet: array[0..MAXBUF-1] of Byte;
   addr: TWinDivertAddress;
   packet_len: UINT;
   ip_header: PWinDivertIpHdr;
@@ -53,21 +71,21 @@ var
   i: integer;
 begin
   try
-  	priority := 0;
+    priority := 0;
     case ParamCount of
-    	1: ;
+      1: ;
       2:
-      	begin
+        begin
           priority := StrToInt(ParamStr(2));
         end;
       else
-      	begin
-        	WriteLn('usage: netdump windivert-filter [priority]');
+        begin
+          WriteLn('usage: netdump windivert-filter [priority]');
           WriteLn('examples:');
           WriteLn('  netdump true');
           WriteLn('  netdump "outbound and tcp.DstPort == 80" 1000');
           WriteLn('  netdump "inbound and tcp.Syn" -4000');
-        	Halt(1);
+          Halt(1);
         end;
     end;
 
@@ -77,12 +95,12 @@ begin
     // Divert traffic matching the filter:
     filter := ParamStr(1);
     handle := WinDivertOpen(PAnsiChar(AnsiString(filter)), WINDIVERT_LAYER_NETWORK,
-    	priority, WINDIVERT_FLAG_SNIFF);
-  	if handle = INVALID_HANDLE_VALUE then begin
+      priority, WINDIVERT_FLAG_SNIFF);
+    if handle = INVALID_HANDLE_VALUE then begin
       if GetLastError = ERROR_INVALID_PARAMETER then
         WriteLn('error: filter syntax error')
       else
-      	WriteLn(Format('error: failed to open the WinDivert device (%d)', [GetLastError]));
+        WriteLn(Format('error: failed to open the WinDivert device (%d)', [GetLastError]));
       Halt(1);
     end;
 
@@ -106,10 +124,10 @@ begin
 
       // Print info about the matching packet.
       WinDivertHelperParsePacket(@packet, packet_len,
-      	@ip_header, @ipv6_header, @icmp_header, @icmpv6_header, @tcp_header,
+        @ip_header, @ipv6_header, @icmp_header, @icmpv6_header, @tcp_header,
         @udp_header, nil, nil);
       if (ip_header = nil) and (ipv6_header = nil) then
-      	WriteLn('warning: junk packet');
+        WriteLn('warning: junk packet');
 
       // Dump packet info:
       WriteLn;
@@ -122,7 +140,7 @@ begin
         dst_v4addr := TIpv4Addr(ip_header^.DstAddr);
 
         WriteLn(Format(SIpv4Hdr, [
-        	ip_header^.Version, ip_header^.HdrLength,
+          ip_header^.Version, ip_header^.HdrLength,
           ntohs(ip_header^.TOS), ntohs(ip_header^.Length),
           ntohs(ip_header^.Id), WINDIVERT_IPHDR_GET_RESERVED(ip_header),
           WINDIVERT_IPHDR_GET_DF(ip_header),
@@ -136,10 +154,11 @@ begin
 
       if (ipv6_header <> nil) then begin
         SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
+        // Ugly cast xD: ipv6_header^.SrcAddr -> untyped pointer -> TIpv6Addr.
         src_v6addr := TIpv6Addr((@ipv6_header^.SrcAddr)^);
         dst_v6addr := TIpv6Addr((@ipv6_header^.DstAddr)^);
         Write(Format(SIpv6Hdr, [
-        	ipv6_header^.Version,
+          ipv6_header^.Version,
           WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(ipv6_header),
           ntohl(WINDIVERT_IPV6HDR_GET_FLOWLABEL(ipv6_header)),
           ntohs(ipv6_header^.Length), ipv6_header^.NextHdr,
@@ -148,15 +167,15 @@ begin
         for i := 0 to 7 do begin
           Write(Format('%x', [ntohs(src_v6addr[i])]));
           if (i <> 7) then
-          	Write(':')
+            Write(':')
           else
-          	Write(' ');
+            Write(' ');
         end;
         Write('DstAddr=');
         for i := 0 to 7 do begin
           Write(Format('%x', [ntohs(dst_v6addr[i])]));
           if (i <> 7) then
-          	Write(':');
+            Write(':');
         end;
 
         WriteLn(']');
@@ -165,23 +184,23 @@ begin
       if (icmp_header <> nil) then begin
         SetConsoleTextAttribute(console, FOREGROUND_RED);
         WriteLn(Format('ICMP [Type=%d Code=%d Checksum=0x%.4x Body=0x%.8x]', [
-        	icmp_header^._Type, icmp_header^.Code,
+          icmp_header^._Type, icmp_header^.Code,
           ntohs(icmp_header^.Checksum), ntohl(icmp_header^.Body)
         ]));
       end;
 
       if (icmpv6_header <> nil) then begin
-      	SetConsoleTextAttribute(console, FOREGROUND_RED);
+        SetConsoleTextAttribute(console, FOREGROUND_RED);
         WriteLn(Format('ICMPV6 [Type=%d Code=%d Checksum=0x%.4x Body=0x%.8x]', [
-        	icmpv6_header^._Type, icmpv6_header^.Code,
+          icmpv6_header^._Type, icmpv6_header^.Code,
           ntohs(icmpv6_header^.Checksum), ntohl(icmpv6_header^.Body)
         ]));
       end;
 
       if (tcp_header <> nil) then begin
-      	SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+        SetConsoleTextAttribute(console, FOREGROUND_GREEN);
         WriteLn(Format(STcpHdr, [
-        	ntohs(tcp_header^.SrcPort), ntohs(tcp_header^.DstPort),
+          ntohs(tcp_header^.SrcPort), ntohs(tcp_header^.DstPort),
           ntohl(tcp_header^.SeqNum), ntohl(tcp_header^.AckNum),
           tcp_header^.HdrLength, tcp_header^.Reserved1,
           tcp_header^.Reserved2, tcp_header^.Urg, tcp_header^.Ack,
@@ -192,17 +211,17 @@ begin
       end;
 
       if (udp_header <> nil) then begin
-      	SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+        SetConsoleTextAttribute(console, FOREGROUND_GREEN);
         WriteLn(Format('UDP [SrcPort=%d DstPort=%d Length=%d Checksum=0x%.4x]', [
-        	ntohs(udp_header^.SrcPort), ntohs(udp_header^.DstPort),
+          ntohs(udp_header^.SrcPort), ntohs(udp_header^.DstPort),
           ntohs(udp_header^.Length), ntohs(udp_header^.Checksum)
         ]));
       end;
 
       SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_BLUE);
       for i := 0 to packet_len - 1 do begin
-      	if (i mod 20 = 0) then begin
-        	WriteLn;
+        if (i mod 20 = 0) then begin
+          WriteLn;
           Write(#9);
         end;
         Write(Format('%.2x', [packet[i]]));
@@ -215,9 +234,9 @@ begin
           Write(#9);
         end;
         if isprint(AnsiChar(packet[i])) then
-        	Write(AnsiChar(packet[i]))
+          Write(AnsiChar(packet[i]))
         else
-        	Write('.');
+          Write('.');
       end;
 
       WriteLn;

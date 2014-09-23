@@ -1,3 +1,21 @@
+{*
+ * passthru
+ * (C) 2014, all rights reserved,
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *}
+
 program passthru;
 
 {$APPTYPE CONSOLE}
@@ -10,20 +28,20 @@ uses
   windivert in 'windivert.pas';
 
 const
-	MAXBUF = $FFFF;
+  MAXBUF = $FFFF;
 
 function passthr(arg: Pointer): DWORD;
 var
-	packet: array[0..MAXBUF-1] of Byte;
+  packet: array[0..MAXBUF-1] of Byte;
   packetLen, writeLen: UINT;
   addr: TWinDivertAddress;
   handle: THandle;
 begin
-	handle := THandle(arg);
+  handle := THandle(arg);
   while (true) do begin
-  	// Read a matching packet.
+    // Read a matching packet.
     if not WinDivertRecv(handle, @packet, SizeOf(packet), @addr, packetLen) then begin
-    	WriteLn(Format('warning: failed to read packet (%d)', [GetLastError]));
+      WriteLn(Format('warning: failed to read packet (%d)', [GetLastError]));
       Continue;
     end;
 
@@ -37,18 +55,18 @@ begin
 end;
 
 var
-	handle, thread: THandle;
+  handle, thread: THandle;
   filter: string;
   num_threads, i: integer;
   thread_id: DWORD;
 begin
   try
-  	if ParamCount <> 2 then begin
+    if ParamCount <> 2 then begin
       WriteLn('usage: passthru filter num-threads');
       WriteLn('example: passthru "outbound and tcp.PayloadLength > 0 and tcp.DstPort == 80" 3');
-			Halt(1);
+      Halt(1);
     end;
-  	filter := ParamStr(1);
+    filter := ParamStr(1);
     num_threads := StrToInt(ParamStr(2));
     if (num_threads < 1) and (num_threads > 64) then begin
       WriteLn('error: invalid number of threads');

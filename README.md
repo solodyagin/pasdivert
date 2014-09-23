@@ -3,6 +3,20 @@ pasdivert
 
 Pascal binding for [WinDivert](http://reqrypt.org/windivert.html).
 
+WinDivert
+---------
+
+Copied from the Website: WinDivert is a user-mode packet capture-and-divert 
+package for Windows Vista, Windows 2008, Windows 7, Windows 8.
+
+WinDivert allows user-mode applications to capture/modify/drop network packets 
+sent to/from the Windows network stack.
+
+WinDivert can be used to implement user-mode packet filters, packet sniffers, 
+firewalls, NAT, VPNs, tunneling applications, etc. 
+
+GitHub repository of WinDivert: https://github.com/basil00/Divert
+
 Requirements
 ------------
 
