@@ -206,7 +206,7 @@ begin
       if (tcp_header <> nil) then begin
         SetConsoleTextAttribute(console, FOREGROUND_GREEN);
         Get4Bits(tcp_header^.Reserved1_HdrLength, uReserved1, uHdrLength);
-        uReserved2 := uReserved2;
+        uReserved2 := 0;
         if (fReserved20 in tcp_header^.Flags) then
 					Inc(uReserved2);
         if (fReserved21 in tcp_header^.Flags) then

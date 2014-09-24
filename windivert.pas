@@ -278,8 +278,6 @@ type
   PWinDivertUdpHdr = ^TWinDivertUdpHdr;
   PPWinDivertUdpHdr = ^PWinDivertUdpHdr;
 
-function GetTcpHdrFlags(const X: Byte): TTcpHdrFlags;
-
 {*
  * Flags for DivertHelperCalcChecksums()
  *}
@@ -337,14 +335,6 @@ procedure Get4Bits(const X: UINT8; out Upper, Lower: UINT8);
 begin
   Upper := X shl 4;
   Lower := (X shr 4) shl 4;
-end;
-
-function GetTcpHdrFlags(const X: Byte): TTcpHdrFlags;
-begin
-{  Result.Fin := X and 1 = 1;
-  Result.Syn := X and 2 = 2;
-  Result.Rst := X and 4 = 4;
-  Result.Psh := X and}
 end;
 
 function WINDIVERT_IPHDR_GET_FRAGOFF(hdr: PWinDivertIpHdr): UINT16;
