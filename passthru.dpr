@@ -40,7 +40,7 @@ begin
   handle := THandle(arg);
   while (true) do begin
     // Read a matching packet.
-    if not WinDivertRecv(handle, @packet, SizeOf(packet), @addr, packetLen) then begin
+    if not WinDivertRecv(handle, @packet, SizeOf(packet), addr, packetLen) then begin
       WriteLn(Format('warning: failed to read packet (%d)', [GetLastError]));
       Continue;
     end;

@@ -69,6 +69,9 @@ var
   src_v6addr: TIpv6Addr;
   dst_v6addr: TIpv6Addr;
   i: integer;
+  nil1: Pointer;
+  dummy_uint: UINT;
+  uVersion, uHdrLength, uTrafficClass0, uReserved1, uReserved2: UINT8;
 begin
   try
     priority := 0;
@@ -117,15 +120,16 @@ begin
     // Main loop:
     while (true) do begin
       // Read a matching packet.
-      if not WinDivertRecv(handle, @packet, SizeOf(packet), @addr, packet_len) then begin
+      if not WinDivertRecv(handle, @packet, SizeOf(packet), addr, packet_len) then begin
         WriteLn(Format('warning: failed to read packet (%d)', [GetLastError]));
         Continue;
       end;
 
       // Print info about the matching packet.
+      nil1 := nil;
       WinDivertHelperParsePacket(@packet, packet_len,
-        @ip_header, @ipv6_header, @icmp_header, @icmpv6_header, @tcp_header,
-        @udp_header, nil, nil);
+        ip_header, ipv6_header, icmp_header, icmpv6_header, tcp_header,
+        udp_header, nil1, dummy_uint);
       if (ip_header = nil) and (ipv6_header = nil) then
         WriteLn('warning: junk packet');
 
@@ -139,8 +143,9 @@ begin
         src_v4addr := TIpv4Addr(ip_header^.SrcAddr);
         dst_v4addr := TIpv4Addr(ip_header^.DstAddr);
 
+        Get4Bits(ip_header^.HdrLength_Version, uHdrLength, uVersion);
         WriteLn(Format(SIpv4Hdr, [
-          ip_header^.Version, ip_header^.HdrLength,
+          uVersion, uHdrLength,
           ntohs(ip_header^.TOS), ntohs(ip_header^.Length),
           ntohs(ip_header^.Id), WINDIVERT_IPHDR_GET_RESERVED(ip_header),
           WINDIVERT_IPHDR_GET_DF(ip_header),
@@ -157,8 +162,9 @@ begin
         // Ugly cast xD: ipv6_header^.SrcAddr -> untyped pointer -> TIpv6Addr.
         src_v6addr := TIpv6Addr((@ipv6_header^.SrcAddr)^);
         dst_v6addr := TIpv6Addr((@ipv6_header^.DstAddr)^);
+        Get4Bits(ipv6_header^.TrafficClass0_Version, uTrafficClass0, uVersion);
         Write(Format(SIpv6Hdr, [
-          ipv6_header^.Version,
+          uVersion,
           WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(ipv6_header),
           ntohl(WINDIVERT_IPV6HDR_GET_FLOWLABEL(ipv6_header)),
           ntohs(ipv6_header^.Length), ipv6_header^.NextHdr,
@@ -199,13 +205,21 @@ begin
 
       if (tcp_header <> nil) then begin
         SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+        Get4Bits(tcp_header^.Reserved1_HdrLength, uReserved1, uHdrLength);
+        uReserved2 := uReserved2;
+        if (fReserved20 in tcp_header^.Flags) then
+					Inc(uReserved2);
+        if (fReserved21 in tcp_header^.Flags) then
+					Inc(uReserved2, 2);
         WriteLn(Format(STcpHdr, [
           ntohs(tcp_header^.SrcPort), ntohs(tcp_header^.DstPort),
           ntohl(tcp_header^.SeqNum), ntohl(tcp_header^.AckNum),
-          tcp_header^.HdrLength, tcp_header^.Reserved1,
-          tcp_header^.Reserved2, tcp_header^.Urg, tcp_header^.Ack,
-          tcp_header^.Psh, tcp_header^.Rst, tcp_header^.Syn,
-          tcp_header^.Fin, ntohs(tcp_header^.Window),
+          uHdrLength, uReserved1,
+          uReserved2,
+          Ord(fUrg in tcp_header^.Flags), Ord(fAck in tcp_header^.Flags),
+          Ord(fPsh in tcp_header^.Flags), Ord(fRst in tcp_header^.Flags),
+          Ord(fSyn in tcp_header^.Flags), Ord(fFin in tcp_header^.Flags),
+          ntohs(tcp_header^.Window),
           ntohs(tcp_header^.Checksum), ntohs(tcp_header^.UrgPtr)
         ]));
       end;
