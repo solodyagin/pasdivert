@@ -32,7 +32,7 @@ type
   INT8 = Byte;
   UINT8 = Byte;
   INT16 = ShortInt;
-  UINT16 = ShortInt;
+  UINT16 = Word;
   INT32 = Integer;
   UINT32 = Cardinal;
   PUINT32 = ^UINT32;
@@ -166,20 +166,19 @@ function WinDivertGetParam(
  * IPv4/IPv6/ICMP/ICMPv6/TCP/UDP header definitions.
  *}
 type
-// http://rvelthuis.de/articles/articles-convert.html#bitfields
+	// http://rvelthuis.de/articles/articles-convert.html#bitfields
+	// SizeOf(WINDIVERT_IPHDR) = 20
   WINDIVERT_IPHDR = record
-//    UINT8  HdrLength:4;
-//    UINT8  Version:4;
-    HdrLength_Version: UINT8;
-    TOS: UINT8;
-    Length: UINT16;
-    Id: UINT16;
-    FragOff0: UINT16;
-    TTL: UINT8;
-    Protocol: UINT8;
-    Checksum: UINT16;
-    SrcAddr: UINT32;
-    DstAddr: UINT32;
+    HdrLength_Version: UINT8; // 1
+    TOS: UINT8;              // 1
+    Length: UINT16;           // 2
+    Id: UINT16;               // 2
+    FragOff0: UINT16;         // 2
+    TTL: UINT8;               // 1
+    Protocol: UINT8;          // 1
+    Checksum: UINT16;         // 2
+    SrcAddr: UINT32;          // 4
+    DstAddr: UINT32;          // 4
   end;
   TWinDivertIpHdr = WINDIVERT_IPHDR;
   PWinDivertIpHdr = ^TWinDivertIpHdr;
@@ -192,7 +191,7 @@ function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): UINT16;
 function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): UINT16;
 
 type
-// http://rvelthuis.de/articles/articles-convert.html#bitfields
+	// SizeOf(WINDIVERT_IPV6HDR) = 40
   WINDIVERT_IPV6HDR = record
 //    UINT8  TrafficClass0:4;
 //    UINT8  Version:4;
@@ -210,8 +209,6 @@ type
   TWinDivertIpv6Hdr = WINDIVERT_IPV6HDR;
   PWinDivertIpv6Hdr = ^TWinDivertIpv6Hdr;
   PPWinDivertIpv6Hdr = ^PWinDivertIpv6Hdr;
-
-procedure Get4Bits(const X: UINT8; out Upper, Lower: UINT8);
 
 // Macros
 function WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(hdr: PWinDivertIpv6Hdr): UINT8;
@@ -251,6 +248,18 @@ type
   // This should have approx. 8 Bit, because a set is always 1 Byte (255 elements)
   TTcpHdrFlags = set of TTcpHdrFlag;
 
+const
+  TCPHDR_FLAG_FIN   = $01;
+  TCPHDR_FLAG_SYN   = $02;
+  TCPHDR_FLAG_RST   = $04;
+  TCPHDR_FLAG_PSH   = $08;
+  TCPHDR_FLAG_ACK   = $10;
+  TCPHDR_FLAG_URG   = $20;
+  TCPHDR_FLAG_RES20 = $40;
+  TCPHDR_FLAG_RES21 = $80;
+
+type
+	// SizeOf(WINDIVERT_IPV6HDR) = 20
   WINDIVERT_TCPHDR = record
     SrcPort: UINT16;
     DstPort: UINT16;
@@ -259,7 +268,7 @@ type
 //    UINT16 Reserved1:4;
 //    UINT16 HdrLength:4;
     Reserved1_HdrLength: UINT8;
-    Flags: TTcpHdrFlags;
+    Flags: UINT8;
     Window: UINT16;
     Checksum: UINT16;
     UrgPtr: UINT16;
@@ -268,6 +277,7 @@ type
   PWinDivertTcpHdr = ^TWinDivertTcpHdr;
   PPWinDivertTcpHdr = ^PWinDivertTcpHdr;
 
+type
   WINDIVERT_UDPHDR = record
     SrcPort: UINT16;
     DstPort: UINT16;
@@ -294,14 +304,14 @@ const
 function WinDivertHelperParsePacket(
   pPacket: Pointer;
   packetLen: UINT;
-  var ppIpHdr: PWinDivertIpHdr;
-  var ppIpv6Hdr: PWinDivertIpv6Hdr;
-  var ppIcmpHdr: PWinDivertIcmpHdr;
-  var ppIcmpv6Hdr: PWinDivertIcmpv6Hdr;
-  var ppTcpHdr: PWinDivertTcpHdr;
-  var ppUdpHdr: PWinDivertUdpHdr;
-  var ppData: Pointer;
-  var pDataLen: UINT
+  ppIpHdr: PPWinDivertIpHdr;
+  ppIpv6Hdr: PPWinDivertIpv6Hdr;
+  ppIcmpHdr: PPWinDivertIcmpHdr;
+  ppIcmpv6Hdr: PPWinDivertIcmpv6Hdr;
+  ppTcpHdr: PPWinDivertTcpHdr;
+  ppUdpHdr: PPWinDivertUdpHdr;
+  ppData: PPointer;
+  pDataLen: PUINT
 ): BOOL; cdecl; external 'windivert.dll';
 
 {*
@@ -329,12 +339,46 @@ function WinDivertHelperCalcChecksums(
   flags: UINT64
 ): UINT; cdecl; external 'windivert.dll';
 
+// Helper
+procedure Get4Bits(const X: UINT8; out Lower, Upper: UINT8);
+function GetTcpHdrFlags(const TcpHdr: PWinDivertTcpHdr; out Reserved2: UINT8): TTcpHdrFlags;
+
 implementation
 
-procedure Get4Bits(const X: UINT8; out Upper, Lower: UINT8);
+{
+  Split one 8 Bit value (Byte) into two 4 Bit values.
+  @param Lower The lower 4 Bits.
+  @param Upper The upper 4 Bits.
+}
+procedure Get4Bits(const X: UINT8; out Lower, Upper: UINT8);
 begin
-  Upper := X shl 4;
-  Lower := (X shr 4) shl 4;
+  Upper := (X shr 4);
+  Lower := X - (Upper shl 4);
+end;
+
+function GetTcpHdrFlags(const TcpHdr: PWinDivertTcpHdr; out Reserved2: UINT8): TTcpHdrFlags;
+begin
+	Result := [];
+  if TcpHdr = nil then
+  	Exit;
+
+	if TcpHdr^.Flags and TCPHDR_FLAG_FIN = TCPHDR_FLAG_FIN then
+		Include(Result, fFin);
+	if TcpHdr^.Flags and TCPHDR_FLAG_SYN = TCPHDR_FLAG_SYN then
+		Include(Result, fSyn);
+	if TcpHdr^.Flags and TCPHDR_FLAG_RST = TCPHDR_FLAG_RST then
+		Include(Result, fRst);
+	if TcpHdr^.Flags and TCPHDR_FLAG_PSH = TCPHDR_FLAG_PSH then
+		Include(Result, fPsh);
+	if TcpHdr^.Flags and TCPHDR_FLAG_ACK = TCPHDR_FLAG_ACK then
+		Include(Result, fAck);
+	if TcpHdr^.Flags and TCPHDR_FLAG_URG = TCPHDR_FLAG_URG then
+		Include(Result, fUrg);
+  Reserved2 := 0;
+	if TcpHdr^.Flags and TCPHDR_FLAG_RES20 = TCPHDR_FLAG_RES20 then
+		Inc(Reserved2);
+	if TcpHdr^.Flags and TCPHDR_FLAG_RES21 = TCPHDR_FLAG_RES21 then
+		Inc(Reserved2, 2);
 end;
 
 function WINDIVERT_IPHDR_GET_FRAGOFF(hdr: PWinDivertIpHdr): UINT16;
@@ -368,12 +412,12 @@ end;
 
 function WINDIVERT_IPV6HDR_GET_TRAFFICCLASS(hdr: PWinDivertIpv6Hdr): UINT8;
 var
-	TrafficClass0,
+  TrafficClass0,
   TrafficClass1: UINT8;
   dummy: UINT8;
 begin
-	Get4Bits(hdr^.TrafficClass0_Version, TrafficClass0, dummy);
-	Get4Bits(hdr^.FlowLabel0_TrafficClass1, dummy, TrafficClass1);
+  Get4Bits(hdr^.TrafficClass0_Version, TrafficClass0, dummy);
+  Get4Bits(hdr^.FlowLabel0_TrafficClass1, dummy, TrafficClass1);
   Result := (TrafficClass0 shl 4) or TrafficClass1;
 end;
 
@@ -382,7 +426,7 @@ var
   FlowLabel0: UINT8;
   dummy: UINT8;
 begin
-	Get4Bits(hdr^.FlowLabel0_TrafficClass1, FlowLabel0, dummy);
+  Get4Bits(hdr^.FlowLabel0_TrafficClass1, FlowLabel0, dummy);
   Result := (UINT32(FlowLabel0) shl 16) or (UINT32(hdr^.FlowLabel1));
 end;
 

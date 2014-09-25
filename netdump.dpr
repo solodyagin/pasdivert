@@ -72,6 +72,7 @@ var
   nil1: Pointer;
   dummy_uint: UINT;
   uVersion, uHdrLength, uTrafficClass0, uReserved1, uReserved2: UINT8;
+  tcp_hdrflags: TTcpHdrFlags;
 begin
   try
     priority := 0;
@@ -128,8 +129,8 @@ begin
       // Print info about the matching packet.
       nil1 := nil;
       WinDivertHelperParsePacket(@packet, packet_len,
-        ip_header, ipv6_header, icmp_header, icmpv6_header, tcp_header,
-        udp_header, nil1, dummy_uint);
+        @ip_header, @ipv6_header, @icmp_header, @icmpv6_header, @tcp_header,
+        @udp_header, nil1, @dummy_uint);
       if (ip_header = nil) and (ipv6_header = nil) then
         WriteLn('warning: junk packet');
 
@@ -206,19 +207,15 @@ begin
       if (tcp_header <> nil) then begin
         SetConsoleTextAttribute(console, FOREGROUND_GREEN);
         Get4Bits(tcp_header^.Reserved1_HdrLength, uReserved1, uHdrLength);
-        uReserved2 := 0;
-        if (fReserved20 in tcp_header^.Flags) then
-					Inc(uReserved2);
-        if (fReserved21 in tcp_header^.Flags) then
-					Inc(uReserved2, 2);
+        tcp_hdrflags := GetTcpHdrFlags(tcp_header, uReserved2);
         WriteLn(Format(STcpHdr, [
           ntohs(tcp_header^.SrcPort), ntohs(tcp_header^.DstPort),
           ntohl(tcp_header^.SeqNum), ntohl(tcp_header^.AckNum),
           uHdrLength, uReserved1,
           uReserved2,
-          Ord(fUrg in tcp_header^.Flags), Ord(fAck in tcp_header^.Flags),
-          Ord(fPsh in tcp_header^.Flags), Ord(fRst in tcp_header^.Flags),
-          Ord(fSyn in tcp_header^.Flags), Ord(fFin in tcp_header^.Flags),
+          Ord(fUrg in tcp_hdrflags), Ord(fAck in tcp_hdrflags),
+          Ord(fPsh in tcp_hdrflags), Ord(fRst in tcp_hdrflags),
+          Ord(fSyn in tcp_hdrflags), Ord(fFin in tcp_hdrflags),
           ntohs(tcp_header^.Window),
           ntohs(tcp_header^.Checksum), ntohs(tcp_header^.UrgPtr)
         ]));
