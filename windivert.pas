@@ -22,6 +22,10 @@
 
 unit windivert;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 
 uses
@@ -92,8 +96,8 @@ function WinDivertRecv(
   handle: THandle;
   pPacket: Pointer;
   packetLen: UINT;
-  var pAdd: TWinDivertAddress;
-  var readLen: UINT
+  out pAdd: TWinDivertAddress;
+  out readLen: UINT
 ): BOOL; cdecl; external 'windivert.dll';
 
 {*
@@ -104,8 +108,8 @@ function WinDivertRecvEx(
   pPacket: Pointer;
   packetLen: UINT;
   flags: UINT64;
-  var pAdd: TWinDivertAddress;
-  var readLen: UINT;
+  out pAdd: TWinDivertAddress;
+  out readLen: UINT;
   var lpOverlapped: TOverlapped
 ): BOOL; cdecl; external 'windivert.dll';
 
@@ -117,7 +121,7 @@ function WinDivertSend(
   pPacket: Pointer;
   packetLen: UINT;
   pAdd: PWinDivertAddress;
-  var writeLen: UINT
+  out writeLen: UINT
 ): BOOL; cdecl; external 'windivert.dll';
 
 {*
@@ -319,7 +323,7 @@ function WinDivertHelperParsePacket(
  *}
 function WinDivertHelperParseIPv4Address(
   const addrStr: PAnsiChar;
-  var pAddr: UINT32
+  out pAddr: UINT32
 ): BOOL; cdecl; external 'windivert.dll';
 
 {*
@@ -327,7 +331,7 @@ function WinDivertHelperParseIPv4Address(
  *}
 function WinDivertHelperParseIPv6Address(
   const addrStr: PAnsiChar;
-  var pAddr: UINT32
+  out pAddr: UINT32
 ): BOOL; cdecl; external 'windivert.dll';
 
 {*

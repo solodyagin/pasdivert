@@ -18,6 +18,10 @@
 
 program passthru;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 {$APPTYPE CONSOLE}
 
 {$R *.res}

@@ -18,6 +18,10 @@
 
 program netdump;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 {$APPTYPE CONSOLE}
 
 {$R *.res}

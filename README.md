@@ -3,6 +3,8 @@ pasdivert
 
 Pascal binding for [WinDivert](http://reqrypt.org/windivert.html).
 
+This Unit can be used with Delphi and Free Pascal.
+
 WinDivert
 ---------
 
