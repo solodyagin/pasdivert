@@ -166,8 +166,8 @@ function WinDivertGetParam(
  * IPv4/IPv6/ICMP/ICMPv6/TCP/UDP header definitions.
  *}
 type
-	// http://rvelthuis.de/articles/articles-convert.html#bitfields
-	// SizeOf(WINDIVERT_IPHDR) = 20
+  // http://rvelthuis.de/articles/articles-convert.html#bitfields
+  // SizeOf(WINDIVERT_IPHDR) = 20
   WINDIVERT_IPHDR = record
     HdrLength_Version: UINT8; // 1
     TOS: UINT8;              // 1
@@ -191,7 +191,7 @@ function WINDIVERT_IPHDR_GET_DF(hdr: PWinDivertIpHdr): UINT16;
 function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): UINT16;
 
 type
-	// SizeOf(WINDIVERT_IPV6HDR) = 40
+  // SizeOf(WINDIVERT_IPV6HDR) = 40
   WINDIVERT_IPV6HDR = record
 //    UINT8  TrafficClass0:4;
 //    UINT8  Version:4;
@@ -244,7 +244,7 @@ type
     fAck,
     fUrg,
     fReserved20, fReserved21
-	);
+  );
   // This should have approx. 8 Bit, because a set is always 1 Byte (255 elements)
   TTcpHdrFlags = set of TTcpHdrFlag;
 
@@ -259,7 +259,7 @@ const
   TCPHDR_FLAG_RES21 = $80;
 
 type
-	// SizeOf(WINDIVERT_IPV6HDR) = 20
+  // SizeOf(WINDIVERT_IPV6HDR) = 20
   WINDIVERT_TCPHDR = record
     SrcPort: UINT16;
     DstPort: UINT16;
@@ -358,27 +358,27 @@ end;
 
 function GetTcpHdrFlags(const TcpHdr: PWinDivertTcpHdr; out Reserved2: UINT8): TTcpHdrFlags;
 begin
-	Result := [];
+  Result := [];
   if TcpHdr = nil then
-  	Exit;
+    Exit;
 
-	if TcpHdr^.Flags and TCPHDR_FLAG_FIN = TCPHDR_FLAG_FIN then
-		Include(Result, fFin);
-	if TcpHdr^.Flags and TCPHDR_FLAG_SYN = TCPHDR_FLAG_SYN then
-		Include(Result, fSyn);
-	if TcpHdr^.Flags and TCPHDR_FLAG_RST = TCPHDR_FLAG_RST then
-		Include(Result, fRst);
-	if TcpHdr^.Flags and TCPHDR_FLAG_PSH = TCPHDR_FLAG_PSH then
-		Include(Result, fPsh);
-	if TcpHdr^.Flags and TCPHDR_FLAG_ACK = TCPHDR_FLAG_ACK then
-		Include(Result, fAck);
-	if TcpHdr^.Flags and TCPHDR_FLAG_URG = TCPHDR_FLAG_URG then
-		Include(Result, fUrg);
+  if TcpHdr^.Flags and TCPHDR_FLAG_FIN = TCPHDR_FLAG_FIN then
+    Include(Result, fFin);
+  if TcpHdr^.Flags and TCPHDR_FLAG_SYN = TCPHDR_FLAG_SYN then
+    Include(Result, fSyn);
+  if TcpHdr^.Flags and TCPHDR_FLAG_RST = TCPHDR_FLAG_RST then
+    Include(Result, fRst);
+  if TcpHdr^.Flags and TCPHDR_FLAG_PSH = TCPHDR_FLAG_PSH then
+    Include(Result, fPsh);
+  if TcpHdr^.Flags and TCPHDR_FLAG_ACK = TCPHDR_FLAG_ACK then
+    Include(Result, fAck);
+  if TcpHdr^.Flags and TCPHDR_FLAG_URG = TCPHDR_FLAG_URG then
+    Include(Result, fUrg);
   Reserved2 := 0;
-	if TcpHdr^.Flags and TCPHDR_FLAG_RES20 = TCPHDR_FLAG_RES20 then
-		Inc(Reserved2);
-	if TcpHdr^.Flags and TCPHDR_FLAG_RES21 = TCPHDR_FLAG_RES21 then
-		Inc(Reserved2, 2);
+  if TcpHdr^.Flags and TCPHDR_FLAG_RES20 = TCPHDR_FLAG_RES20 then
+    Inc(Reserved2);
+  if TcpHdr^.Flags and TCPHDR_FLAG_RES21 = TCPHDR_FLAG_RES21 then
+    Inc(Reserved2, 2);
 end;
 
 function WINDIVERT_IPHDR_GET_FRAGOFF(hdr: PWinDivertIpHdr): UINT16;

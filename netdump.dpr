@@ -23,7 +23,7 @@ program netdump;
 {$R *.res}
 
 uses
-  System.SysUtils,
+  SysUtils,
   Windows,
   Winsock,
   windivert in 'windivert.pas';
@@ -48,7 +48,7 @@ resourcestring
 
 function isprint(const AC: AnsiChar): boolean;
 begin
-  Result := (Ord(AC) > $1F) and (Ord(AC) <> $7F);
+  Result := (AC >= ' ') and (AC <= '~') and (Ord(AC) <> $7F);
 end;
 
 var

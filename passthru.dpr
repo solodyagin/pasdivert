@@ -23,7 +23,7 @@ program passthru;
 {$R *.res}
 
 uses
-  System.SysUtils,
+  SysUtils,
   Windows,
   windivert in 'windivert.pas';
 
