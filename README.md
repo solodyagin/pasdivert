@@ -41,3 +41,12 @@ as Adminsitrator.
 * `passthru` This program does nothing except divert packets and re-inject them.
 * `netdump` This is a simple traffic monitor.  It uses a WinDivert handle in SNIFF 
   mode. The SNIFF mode copies packets and does not block the original.
+
+Compiling
+---------
+
+To compile the examples on Windows 64 with Free Pascal, download the latest 
+64-Bit [Lazarus](http://lazarus.freepascal.org/) distribtution (at the moment of
+this writing, it's Lazarus 1.2.4 and FPC 2.6.4) with the crosscompile add on. 
+Open the project file (*.lpi), select the configuration (Win64-Debug, Win64-Release, 
+Win32-Debug or Win32-Release) and click Start -> Compile.
