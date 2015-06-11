@@ -125,14 +125,14 @@ begin
     // Main loop:
     while (true) do begin
       // Read a matching packet.
-      if not WinDivertRecv(handle, @packet, SizeOf(packet), addr, packet_len) then begin
+      if not WinDivertRecv(handle, packet, SizeOf(packet), addr, packet_len) then begin
         WriteLn(Format('warning: failed to read packet (%d)', [GetLastError]));
         Continue;
       end;
 
       // Print info about the matching packet.
       nil1 := nil;
-      WinDivertHelperParsePacket(@packet, packet_len,
+      WinDivertHelperParsePacket(packet, packet_len,
         @ip_header, @ipv6_header, @icmp_header, @icmpv6_header, @tcp_header,
         @udp_header, nil1, @dummy_uint);
       if (ip_header = nil) and (ipv6_header = nil) then

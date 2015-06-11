@@ -114,6 +114,7 @@ begin
     if (SL.Count = 0) then Exit;
 
     S := SL.Strings[0];
+
     RE := TRegExpr.Create;
     try
       RE.Expression := '^(GET|POST|HEAD) (.*) HTTP/\d\.\d$';
@@ -177,9 +178,10 @@ var
   blockpage_len: UINT16;
   blacklist: TStringList;
   SL: TStringList;
-  i: Integer;
+  I, J: Integer;
   priority: INT16 = 404;       // Arbitrary.
   writeLen: UINT;
+  S: string;
 begin
   // Read the blacklists.
   if (ParamCount = 0) then
@@ -190,11 +192,19 @@ begin
 
   blacklist := TStringList.Create;
   try
-    for i := 1 to ParamCount do
+    for I := 1 to ParamCount do
     begin
       SL := TStringList.Create;
-      SL.LoadFromFile(ParamStr(i));
-      blacklist.AddStrings(SL.Text);
+      SL.LoadFromFile(ParamStr(I));
+      for J := 0 to SL.Count - 1 do
+      begin
+        S := Trim(SL.Strings[J]);
+        if (S <> '') then
+        begin
+          blacklist.Add(S);
+          Writeln('ADD ' + S);
+        end;
+      end;
       SL.Free;
     end;
     blacklist.Sort;
