@@ -94,7 +94,7 @@ function WinDivertOpen(
  *}
 function WinDivertRecv(
   handle: THandle;
-  pPacket: Pointer;
+  var pPacket;
   packetLen: UINT;
   out pAdd: TWinDivertAddress;
   out readLen: UINT
@@ -118,7 +118,7 @@ function WinDivertRecvEx(
  *}
 function WinDivertSend(
   handle: THandle;
-  pPacket: Pointer;
+  var pPacket;
   packetLen: UINT;
   pAdd: PWinDivertAddress;
   out writeLen: UINT
@@ -306,7 +306,7 @@ const
  * Parse IPv4/IPv6/ICMP/ICMPv6/TCP/UDP headers from a raw packet.
  *}
 function WinDivertHelperParsePacket(
-  pPacket: Pointer;
+  var pPacket;
   packetLen: UINT;
   ppIpHdr: PPWinDivertIpHdr;
   ppIpv6Hdr: PPWinDivertIpv6Hdr;
@@ -338,7 +338,7 @@ function WinDivertHelperParseIPv6Address(
  * Calculate IPv4/IPv6/ICMP/ICMPv6/TCP/UDP checksums.
  *}
 function WinDivertHelperCalcChecksums(
-  var pPacket: Pointer;
+  var pPacket;
   packetLen: UINT;
   flags: UINT64
 ): UINT; cdecl; external 'windivert.dll';
