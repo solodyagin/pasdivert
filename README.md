@@ -47,7 +47,8 @@ Compiling
 ---------
 
 To compile the examples on Windows 64 with Free Pascal, download the latest 
-64-Bit [Lazarus](http://lazarus.freepascal.org/) distribtution (at the moment of
-this writing, it's Lazarus 1.2.4 and FPC 2.6.4) with the crosscompile add on. 
+*32-Bit* [Lazarus](http://lazarus.freepascal.org/) distribtution (at the moment of
+this writing, it's Lazarus 1.4.2 and FPC 2.6.4) and the `cross-x86_64-win64-win32` 
+crosscompile add on and install both.
 Open the project file (*.lpi), select the configuration (Win64-Debug, Win64-Release, 
 Win32-Debug or Win32-Release) and click Start -> Compile.
