@@ -33,7 +33,7 @@ uses
 
 type
   BOOL = LongBool;
-  INT8 = Byte;
+  INT8 = ShortInt;
   UINT8 = Byte;
   INT16 = SmallInt;
   UINT16 = Word;
