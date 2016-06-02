@@ -35,7 +35,7 @@ type
   BOOL = LongBool;
   INT8 = Byte;
   UINT8 = Byte;
-  INT16 = ShortInt;
+  INT16 = SmallInt;
   UINT16 = Word;
   INT32 = Integer;
   UINT32 = Cardinal;
