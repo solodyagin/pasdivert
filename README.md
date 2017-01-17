@@ -1,12 +1,10 @@
-pasdivert
-=========
+# pasdivert
 
 Pascal binding for [WinDivert](http://reqrypt.org/windivert.html).
 
 This Unit can be used with Delphi and Free Pascal.
 
-WinDivert
----------
+## WinDivert
 
 Copied from the Website: WinDivert is a user-mode packet capture-and-divert 
 package for Windows Vista, Windows 2008, Windows 7, Windows 8.
@@ -19,8 +17,7 @@ firewalls, NAT, VPNs, tunneling applications, etc.
 
 GitHub repository of WinDivert: https://github.com/basil00/Divert
 
-Requirements
-------------
+## Requirements
 
 You need the binary distribution from the WinDivert homepage. Since we use it
 with Pascal/Delphi you can use any distribtution (VS, DDK or MinGW), this does 
@@ -32,8 +29,7 @@ program directory.
 On Windows 32 put `x86\WinDivert32.sys` and `x86\WinDivert.dll` in the 
 program directory.
 
-Examples
---------
+## Examples
 
 Please run these examples as Adminsitrator. To debug them with Delphi run Delphi
 as Adminsitrator.
@@ -44,8 +40,7 @@ as Adminsitrator.
 * `webfilter` This is a simple web (HTTP) filter using WinDivert.
 * `netlimit` Simulates bad networks.
 
-netlimit
---------
+## netlimit
 
 A Program to simulate bad networks. Can add latency and drop packets.
 
@@ -54,8 +49,18 @@ which must be able to deal with bad/unreliable networks (e.g. the Internet). For
 example, you can't test *lag compensation*, *server/client prediction* when you have
 an almost perfect network (localhost, LAN).
 
-Compiling
----------
+### Example
+
+~~~
+netlimit -f "outbound and udp.DstPort == 3337" -t 1 -l 1000 -d 20
+~~~
+
+1. Filter outbound UDP traffic on port 3337
+2. Use 1 thread
+3. Simulate a ping of ~1000 ms (between 1000 ms and 2000 ms)
+4. Drop 20 % packets
+
+## Compiling
 
 To compile the examples on Windows 64 with Free Pascal, download the latest 
 *32-Bit* [Lazarus](http://lazarus.freepascal.org/) distribtution (at the moment of
