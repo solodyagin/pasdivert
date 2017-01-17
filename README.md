@@ -44,6 +44,16 @@ as Adminsitrator.
 * `webfilter` This is a simple web (HTTP) filter using WinDivert.
 * `netlimit` Simulates bad networks.
 
+netlimit
+--------
+
+A Program to simulate bad networks. Can add latency and drop packets.
+
+This program can be useful when you have to test client/server programs (such as online games) 
+which must be able to deal with bad/unreliable networks (e.g. the Internet). For
+example, you can't test *lag compensation*, *server/client prediction* when you have
+an almost perfect network (localhost, LAN).
+
 Compiling
 ---------
 
