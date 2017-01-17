@@ -192,6 +192,7 @@ begin
         Ord('Q'):
           begin
             // Quit
+            SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
             Write('Really? [y/n]: ');
             key := KeyPressed;
             WriteLn(Char(key));
@@ -236,6 +237,7 @@ begin
     WinDivertClose(handle);
     SetConsoleTextAttribute(console, FOREGROUND_RED);
     WriteLn('Hasta la vista, baby');
+    SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
   except
     on E: Exception do begin
       SetConsoleTextAttribute(console, FOREGROUND_RED);
