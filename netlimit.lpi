@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="passthru"/>
+      <Title Value="netlimit"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -124,6 +124,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
+        <CommandLineParams Value="-f &quot;outbound and udp.DstPort == 3337&quot; -t 1 -l 200 -d 10"/>
       </local>
     </RunParams>
     <RequiredPackages Count="1">
@@ -133,7 +134,7 @@
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
-        <Filename Value="passthru.dpr"/>
+        <Filename Value="netlimit.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
