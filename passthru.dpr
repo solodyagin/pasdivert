@@ -44,13 +44,13 @@ begin
   handle := THandle(arg);
   while (true) do begin
     // Read a matching packet.
-    if not WinDivertRecv(handle, @packet, SizeOf(packet), addr, packetLen) then begin
+    if not WinDivertRecv(handle, packet, SizeOf(packet), addr, packetLen) then begin
       WriteLn(Format('warning: failed to read packet (%d)', [GetLastError]));
       Continue;
     end;
 
     // Re-inject the matching packet.
-    if not WinDivertSend(handle, @packet, packetLen, @addr, writeLen) then begin
+    if not WinDivertSend(handle, packet, packetLen, @addr, writeLen) then begin
       WriteLn(Format('warning: failed to reinject packet (%d)', [GetLastError]));
     end;
 
