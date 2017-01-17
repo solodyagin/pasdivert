@@ -20,7 +20,7 @@ GitHub repository of WinDivert: https://github.com/basil00/Divert
 ## Requirements
 
 You need the binary distribution from the WinDivert homepage. Since we use it
-with Pascal/Delphi you can use any distribtution (VS, DDK or MinGW), this does 
+with Pascal/Delphi you can use any distribution (VS, DDK or MinGW), this does 
 not matter because we do not need the lib files for linking.
 
 On Windows 64 put `amd64\WinDivert64.sys` and `amd64\WinDivert.dll` in the 
@@ -31,8 +31,8 @@ program directory.
 
 ## Examples
 
-Please run these examples as Adminsitrator. To debug them with Delphi run Delphi
-as Adminsitrator.
+Please run these examples as Administrator. To debug them with Delphi run Delphi
+as Administrator.
 
 * `passthru` This program does nothing except divert packets and re-inject them.
 * `netdump` This is a simple traffic monitor.  It uses a WinDivert handle in SNIFF 
@@ -56,14 +56,14 @@ netlimit -f "outbound and udp.DstPort == 3337" -t 1 -l 1000 -d 20
 ~~~
 
 1. Filter outbound UDP traffic on port 3337
-2. Use 1 thread
-3. Simulate a ping of ~1000 ms (between 1000 ms and 2000 ms)
+2. Use 1 worker thread
+3. Simulate an average ping of ~1000 ms (between 500 ms and 1500 ms)
 4. Drop 20 % packets
 
 ## Compiling
 
 To compile the examples on Windows 64 with Free Pascal, download the latest 
-*32-Bit* [Lazarus](http://lazarus.freepascal.org/) distribtution (at the moment of
+*32-Bit* [Lazarus](http://lazarus.freepascal.org/) distribution (at the moment of
 this writing, it's Lazarus 1.4.2 and FPC 2.6.4) and the `cross-x86_64-win64-win32` 
 crosscompile add on and install both.
 Open the project file (*.lpi), select the configuration (Win64-Debug, Win64-Release, 
