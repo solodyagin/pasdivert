@@ -36,17 +36,16 @@ var
   latency: integer;
   drops: integer;
   console: THandle;
+  handle: THandle;
 
 function passthr(arg: Pointer): DWORD;
 var
   packet: array[0..MAXBUF-1] of Byte;
   packetLen, writeLen: UINT;
   addr: TWinDivertAddress;
-  handle: THandle;
   sleep_ms: integer;
   per: integer;
 begin
-  handle := THandle(arg);
   while (true) do begin
     // Read a matching packet.
     if not WinDivertRecv(handle, packet, SizeOf(packet), addr, packetLen) then begin
@@ -55,8 +54,10 @@ begin
       Continue;
     end;
 
-    sleep_ms := Trunc(latency * (Random + 1));
-    Sleep(sleep_ms);
+    // Sleep for (latency * 0.5) - (latency * 1.5)
+    sleep_ms := Trunc(latency * (Random + 0.5));
+    if (sleep_ms > 0) then
+      Sleep(sleep_ms);
     per := Random(100);
     if (per <= drops) then begin
       // Drop it
@@ -85,7 +86,7 @@ var
   str: string;
 begin
   if ParamCount < 2 then begin
-    WriteLn('Usage: netlimit -f <filter> -t <num-threads> -l <latency> -d <drop chance>');
+    WriteLn('Usage: netlimit -f <filter> -t <worker threads> -l <latency> -d <drop chance>');
     WriteLn('Example: netlimit -f "outbound and udp.DstPort == 3337" -t 1 -l 200 -d 10');
     Halt(1);
   end;
@@ -113,15 +114,34 @@ begin
   end;
 
   if (num_threads < 1) and (num_threads > 64) then begin
-    WriteLn('Error: invalid number of threads');
+    WriteLn('Error: invalid number of worker threads');
     Halt(1);
   end;
 end;
 
+{
+  Waits until a key was pressed and returns the VK_ code.
+}
+function KeyPressed: Word;
 var
-  handle, thread: THandle;
+  Read: Cardinal;
+  Hdl: THandle;
+  Rec: _INPUT_RECORD;
+begin
+  Hdl := GetStdHandle(STD_INPUT_HANDLE);
+  Read := 0;
+  repeat
+    Rec.EventType := KEY_EVENT;
+    ReadConsoleInput(Hdl, Rec, 1, Read);
+  until (Read = 1) and (Rec.Event.KeyEvent.bKeyDown);
+  Result := Rec.Event.KeyEvent.wVirtualKeyCode;
+end;
+
+var
+  hThreads: array[0..63] of THandle;
   i: integer;
   thread_id: DWORD;
+  key: Word;
 begin
   WriteLn('netlimit, (c) 2017 sa');
   WriteLn('Simulate bad network');
@@ -150,17 +170,39 @@ begin
     end;
 
     for i := 1 to num_threads do begin
-      thread := CreateThread(nil, 1, @passthr, Pointer(handle), 0, thread_id);
-      if (thread = 0) then begin
+      hThreads[i-1] := CreateThread(nil, 1, @passthr, nil, 0, thread_id);
+      if (hThreads[i-1] = 0) then begin
         SetConsoleTextAttribute(console, FOREGROUND_RED);
         WriteLn(Format('Error: failed to start passthru thread (%u)', [GetLastError]));
         Halt(1);
       end;
     end;
     SetConsoleTextAttribute(console, FOREGROUND_GREEN);
-    WriteLn('Running. Press Ctrl+C to terminate.');
+    WriteLn('Running. Press `q` to terminate.');
 
-    passthr(Pointer(handle));
+    while (true) do begin
+      key := KeyPressed;
+      case key of
+        Ord('Q'):
+          begin
+            Write('Really? [y/n]: ');
+            key := KeyPressed;
+            WriteLn(Char(key));
+            if (key = Ord('Y')) then
+              Break;
+          end;
+      end;
+      Sleep(10);
+    end;
+
+    SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+    WriteLn('Stopping...');
+    for i := 1 to num_threads do begin
+      TerminateThread(hThreads[i-1], 0);
+    end;
+    WinDivertClose(handle);
+    SetConsoleTextAttribute(console, FOREGROUND_RED);
+    WriteLn('Hasta la vista, baby');
   except
     on E: Exception do begin
       SetConsoleTextAttribute(console, FOREGROUND_RED);
