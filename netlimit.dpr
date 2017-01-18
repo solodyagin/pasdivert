@@ -196,9 +196,11 @@ begin
             SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
             Write('Really? [y/n]: ');
             key := KeyPressed;
-            WriteLn(Char(key));
-            if (key = Ord('Y')) then
+            if (key = Ord('Y')) then begin
+              WriteLn('Yesss');
               Break;
+            end else
+              WriteLn('Noooo!');
           end;
         Ord('D'):
           begin
