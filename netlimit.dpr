@@ -147,6 +147,7 @@ var
   thread_id: DWORD;
   key: Word;
   cs: TRTLCriticalSection;
+  exit_code: DWORD;
 begin
   WriteLn('netlimit, (c) 2017 sa');
   WriteLn('Simulate bad network');
@@ -230,7 +231,13 @@ begin
     SetConsoleTextAttribute(console, FOREGROUND_GREEN);
     WriteLn('Stopping...');
     for i := 1 to num_threads do begin
-      TerminateThread(hThreads[i-1], 0);
+      exit_code := 0;
+      GetExitCodeThread(hThreads[i-1], exit_code);
+      // The thread doens't have to clean up stuff, so I think it's safe to call
+      // just TerminateThread()
+      TerminateThread(hThreads[i-1], exit_code);
+      // Wait for thread
+      WaitForSingleObject(hThreads[i-1], 2000);
     end;
 
     DeleteCriticalSection(cs);
