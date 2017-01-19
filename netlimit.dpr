@@ -48,6 +48,9 @@ var
   sleep_ms: integer;
   per: integer;
 begin
+{$IFDEF FPC}
+  Initialize(packet);
+{$ENDIF}
   while (true) do begin
     // Read a matching packet.
     if not WinDivertRecv(handle, packet, SizeOf(packet), addr, packetLen) then begin
@@ -178,7 +181,11 @@ begin
       Halt(1);
     end;
 
+{$IFDEF FPC}
+    Initialize(cs);
+{$ENDIF}
     InitializeCriticalSection(cs);
+    thread_id := 0;
     for i := 1 to num_threads do begin
       hThreads[i-1] := CreateThread(nil, 1, @passthr, nil, 0, thread_id);
       if (hThreads[i-1] = 0) then begin
