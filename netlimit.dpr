@@ -38,6 +38,7 @@ var
   console: THandle;
   handle: THandle;
   drop_all: boolean = false;
+  pass_all: boolean = false;
 
 function passthr(arg: Pointer): DWORD;
 var
@@ -55,19 +56,21 @@ begin
       Continue;
     end;
 
-    // Sleep for (latency * 0.5) - (latency * 1.5)
-    sleep_ms := Trunc(latency * (Random + 0.5));
-    if (sleep_ms > 0) then
-      Sleep(sleep_ms);
-    per := Random(100);
+    if not pass_all then begin
+      // Sleep for (latency * 0.5) - (latency * 1.5)
+      sleep_ms := Trunc(latency * (Random + 0.5));
+      if (sleep_ms > 0) then
+        Sleep(sleep_ms);
+      per := Random(100);
 
-    if ((drops > 0) and (per <= drops)) or drop_all then begin
-      // Drop it
-      if not drop_all then begin
-        SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
-        WriteLn(Format('Info: dropped packet (%d%%)', [per]));
+      if ((drops > 0) and (per <= drops)) or drop_all then begin
+        // Drop it
+        if not drop_all then begin
+          SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
+          WriteLn(Format('Info: dropped packet (%d%%)', [per]));
+        end;
+        Continue;
       end;
-      Continue;
     end;
 
     // Re-inject the matching packet.
@@ -170,7 +173,7 @@ begin
         Halt(1);
       end;
       SetConsoleTextAttribute(console, FOREGROUND_RED);
-      WriteLn(Format('Error: failed to open the WinDivert device (%d)', [GetLastError]));
+      WriteLn(Format('Error: failed to open the WinDivert device (%u)', [GetLastError]));
       WriteLn('Run this program as Administrator.');
       Halt(1);
     end;
@@ -193,7 +196,7 @@ begin
         Ord('Q'):
           begin
             // Quit
-            SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
+            SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
             Write('Really? [y/n]: ');
             key := KeyPressed;
             if (key = Ord('Y')) then begin
@@ -207,6 +210,11 @@ begin
             // Disconnect -> Drop all
             EnterCriticalsection(cs);
             try
+              if pass_all then begin
+                SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
+                WriteLn('Disabling passing all');
+                pass_all := false;
+              end;
               drop_all := not drop_all;
               if drop_all then begin
                 SetConsoleTextAttribute(console, FOREGROUND_RED);
@@ -219,11 +227,35 @@ begin
               LeaveCriticalsection(cs);
             end;
           end;
+        Ord('P'):
+          begin
+            // Pass all
+            EnterCriticalsection(cs);
+            try
+              if drop_all then begin
+                SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
+                WriteLn('Disabling drop all');
+                drop_all := false;
+              end;
+              pass_all := not pass_all;
+              if pass_all then begin
+                SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+                WriteLn('Disabled, no latency and drops');
+              end else begin
+                SetConsoleTextAttribute(console, FOREGROUND_RED);
+                WriteLn(Format('Enabled, latency = %d, packet loss = %d%%', [latency, drops]));
+              end;
+            finally
+              LeaveCriticalsection(cs);
+            end;
+          end;
         Ord('H'):
           begin
             SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
             WriteLn('q: Quit');
             WriteLn('d: Toggle drop all packets');
+            WriteLn('p: Toggle pass all');
+            WriteLn('   d and p are mutually exclusive');
             WriteLn('h: Show this help');
           end;
       end;
@@ -235,7 +267,7 @@ begin
     for i := 1 to num_threads do begin
       exit_code := 0;
       GetExitCodeThread(hThreads[i-1], exit_code);
-      // The thread doens't have to clean up stuff, so I think it's safe to call
+      // The thread doesn't have to clean up stuff, so I think it's safe to call
       // just TerminateThread()
       TerminateThread(hThreads[i-1], exit_code);
       // Wait for thread
