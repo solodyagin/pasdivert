@@ -100,7 +100,7 @@ begin
       WriteLn(Format('Warning: failed to reinject packet (%d)', [GetLastError]));
     end;
 
-    if ((tr^.Recv + 1024) > MAXWORD) or ((tr^.Sent + 1024) > MAXWORD) then begin
+    if (tr^.Recv > (MAXDWORD - 1024)) or (tr^.Sent > (MAXDWORD - 1024)) then begin
       tr^.Start := Now;
       tr^.Sent := 0;
       tr^.Recv := 0;
