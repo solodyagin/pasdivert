@@ -34,7 +34,7 @@ uses
 const
   MAXBUF = $FFFF;
 
-function passthr(arg: Pointer): DWORD;
+function passthr(arg: Pointer): DWORD; stdcall;
 var
   packet: array[0..MAXBUF-1] of Byte;
   packetLen, writeLen: UINT;
