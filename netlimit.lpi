@@ -133,7 +133,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-f &quot;outbound and udp.DstPort == 3337&quot; -t 1 -l 200 -d 10"/>
+        <CommandLineParams Value="-f &quot;outbound and udp.DstPort == 3337&quot; -t 3 -l 200 -d 10"/>
       </local>
     </RunParams>
     <RequiredPackages Count="1">

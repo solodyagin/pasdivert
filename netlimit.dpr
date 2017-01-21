@@ -290,9 +290,11 @@ begin
             try
               SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
               sum_recv := 0; sum_sent := 0;
-              measure_time_sec := MilliSecondsBetween(Now, pThread^.Start) div 1000;
+              measure_time_sec := 0;
               for i := 1 to num_threads do begin
                 pThread := hThreads[i-1];
+                if (measure_time_sec = 0) then
+                  measure_time_sec := MilliSecondsBetween(Now, pThread^.Start) div 1000;
                 sent_byte_per_sec := 0; recv_byte_per_sec := 0;
                 if measure_time_sec > 0 then begin
                   sent_byte_per_sec := pThread^.Sent div measure_time_sec;
