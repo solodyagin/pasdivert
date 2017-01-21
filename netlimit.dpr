@@ -27,10 +27,21 @@ program netlimit;
 uses
   SysUtils,
   Windows,
+  DateUtils,
   windivert in 'windivert.pas';
 
 const
   MAXBUF = $FFFF;
+
+type
+  TThreadRec = record
+    Handle: THandle;
+    Id: DWORD;
+    Start: TDateTime;
+    Recv: DWORD;
+    Sent: DWORD;
+  end;
+  PThreadRec = ^TThreadRec;
 
 var
   latency: integer;
@@ -40,14 +51,18 @@ var
   drop_all: boolean = false;
   pass_all: boolean = false;
 
-function passthr(arg: Pointer): DWORD;
+function passthr(arg: Pointer): DWORD; stdcall;
 var
   packet: array[0..MAXBUF-1] of Byte;
   packetLen, writeLen: UINT;
   addr: TWinDivertAddress;
   sleep_ms: integer;
   per: integer;
+  tr: PThreadRec;
 begin
+  tr := PThreadRec(arg);
+  WriteLn(Format('Starting thread %d', [tr^.Id]));
+  tr^.Start := Now;
 {$IFDEF FPC}
   Initialize(packet);
 {$ENDIF}
@@ -58,6 +73,7 @@ begin
       WriteLn(Format('Warning: failed to read packet (%d)', [GetLastError]));
       Continue;
     end;
+    Inc(tr^.Recv, packetLen);
 
     if not pass_all then begin
       // Sleep for (latency * 0.5) - (latency * 1.5)
@@ -77,11 +93,18 @@ begin
     end;
 
     // Re-inject the matching packet.
-    if not WinDivertSend(handle, packet, packetLen, @addr, writeLen) then begin
+    if WinDivertSend(handle, packet, packetLen, @addr, writeLen) then begin
+      Inc(tr^.Sent, writeLen);
+    end else begin
       SetConsoleTextAttribute(console, FOREGROUND_RED);
       WriteLn(Format('Warning: failed to reinject packet (%d)', [GetLastError]));
     end;
 
+    if ((tr^.Recv + 1024) > MAXWORD) or ((tr^.Sent + 1024) > MAXWORD) then begin
+      tr^.Start := Now;
+      tr^.Sent := 0;
+      tr^.Recv := 0;
+    end;
   end;
   Result := 0;
 end;
@@ -148,12 +171,15 @@ begin
 end;
 
 var
-  hThreads: array[0..63] of THandle;
+  hThreads: array[0..63] of PThreadRec;
+  pThread: PThreadRec;
   i: integer;
-  thread_id: DWORD;
   key: Word;
   cs: TRTLCriticalSection;
   exit_code: DWORD;
+  measure_time_sec: Int64;
+  sent_byte_per_sec, recv_byte_per_sec: Cardinal;
+  sum_recv, sum_sent: UInt64;
 begin
   WriteLn('netlimit, (c) 2017 sa');
   WriteLn('Simulate bad network');
@@ -185,14 +211,16 @@ begin
     Initialize(cs);
 {$ENDIF}
     InitializeCriticalSection(cs);
-    thread_id := 0;
     for i := 1 to num_threads do begin
-      hThreads[i-1] := CreateThread(nil, 1, @passthr, nil, 0, thread_id);
-      if (hThreads[i-1] = 0) then begin
+      New(pThread);
+      pThread^ := Default(TThreadRec);
+      pThread^.Handle := CreateThread(nil, 0, @passthr, pThread, 0, pThread^.Id);
+      if (pThread^.Handle = 0) then begin
         SetConsoleTextAttribute(console, FOREGROUND_RED);
         WriteLn(Format('Error: failed to start thread (%u)', [GetLastError]));
         Halt(1);
       end;
+      hThreads[i-1] := pThread;
     end;
     SetConsoleTextAttribute(console, FOREGROUND_GREEN);
     WriteLn('Running. Press `q` to terminate, `h` for help.');
@@ -256,6 +284,38 @@ begin
               LeaveCriticalsection(cs);
             end;
           end;
+        Ord('S'):
+          begin
+            EnterCriticalsection(cs);
+            try
+              SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
+              sum_recv := 0; sum_sent := 0;
+              measure_time_sec := MilliSecondsBetween(Now, pThread^.Start) div 1000;
+              for i := 1 to num_threads do begin
+                pThread := hThreads[i-1];
+                sent_byte_per_sec := 0; recv_byte_per_sec := 0;
+                if measure_time_sec > 0 then begin
+                  sent_byte_per_sec := pThread^.Sent div measure_time_sec;
+                  recv_byte_per_sec := pThread^.Recv div measure_time_sec;
+                end;
+                WriteLn(Format('%u: Recv = %u (%u B/s), Sent = %u (%u B/s)',
+                  [pThread^.Id, pThread^.Recv, recv_byte_per_sec, pThread^.Sent, sent_byte_per_sec]));
+                Inc(sum_recv, pThread^.Recv);
+                Inc(sum_sent, pThread^.Sent);
+              end;
+              if measure_time_sec > 0 then begin
+                sent_byte_per_sec := sum_sent div measure_time_sec;
+                recv_byte_per_sec := sum_recv div measure_time_sec;
+              end else begin
+                sent_byte_per_sec := 0;
+                recv_byte_per_sec := 0;
+              end;
+              WriteLn(Format('Sum: Recv = %u (%u B/s), Sent = %u (%u B/s)',
+                [sum_recv, recv_byte_per_sec, sum_sent, sent_byte_per_sec]));
+            finally
+              LeaveCriticalsection(cs);
+            end;
+          end;
         Ord('H'):
           begin
             SetConsoleTextAttribute(console, FOREGROUND_RED or FOREGROUND_GREEN or FOREGROUND_BLUE);
@@ -263,6 +323,7 @@ begin
             WriteLn('d: Toggle drop all packets');
             WriteLn('p: Toggle pass all');
             WriteLn('   d and p are mutually exclusive');
+            WriteLn('s: Show statistics');
             WriteLn('h: Show this help');
           end;
       end;
@@ -273,12 +334,13 @@ begin
     WriteLn('Stopping...');
     for i := 1 to num_threads do begin
       exit_code := 0;
-      GetExitCodeThread(hThreads[i-1], exit_code);
+      GetExitCodeThread(hThreads[i-1]^.Handle, exit_code);
       // The thread doesn't have to clean up stuff, so I think it's safe to call
       // just TerminateThread()
-      TerminateThread(hThreads[i-1], exit_code);
+      TerminateThread(hThreads[i-1]^.Handle, exit_code);
       // Wait for thread
-      WaitForSingleObject(hThreads[i-1], 2000);
+      WaitForSingleObject(hThreads[i-1]^.Handle, 2000);
+      Dispose(hThreads[i-1]);
     end;
 
     DeleteCriticalSection(cs);
