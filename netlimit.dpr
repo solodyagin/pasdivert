@@ -28,7 +28,8 @@ uses
   SysUtils,
   Windows,
   DateUtils,
-  windivert in 'windivert.pas';
+  windivert in 'windivert.pas',
+  elevate in 'elevate.pas';
 
 const
   MAXBUF = $FFFF;
@@ -184,6 +185,8 @@ var
   sent_byte_per_sec, recv_byte_per_sec: Cardinal;
   sum_recv, sum_sent: UInt64;
 begin
+  RunElevated;
+
   WriteLn('netlimit, (c) 2017 sa');
   WriteLn('Simulate bad network');
   WriteLn;
