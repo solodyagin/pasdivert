@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *}
- 
+
 unit Elevate;
 
 interface
 
 uses
   SysUtils, Windows, ShellAPI, ComObj;
-  
+
 procedure RunElevated;
 
 implementation
@@ -65,11 +65,11 @@ begin
     end;
   finally
     if (pAdministratorsGroup <> nil) then begin
-    	FreeSid(pAdministratorsGroup);
+      FreeSid(pAdministratorsGroup);
     end;
   end;
   if (dwError <> ERROR_SUCCESS) then
-  	raise Exception.Create(SysErrorMessage(dwError));
+    raise Exception.Create(SysErrorMessage(dwError));
 end;
 
 procedure RunElevated;
@@ -87,7 +87,7 @@ begin
     Host := ParamStr(0);
     Args := '';
     for i := 1 to ParamCount do begin
-    	Args := Args + ' "' + ParamStr(i) + '"';
+      Args := Args + ' "' + ParamStr(i) + '"';
     end;
     Args := Trim(Args);
 
@@ -102,8 +102,8 @@ begin
     SEI.lpFile := PChar(Host);
     SEI.lpParameters := PChar(Args);
     SEI.nShow := SW_NORMAL;
-	  if not ShellExecuteEx({$IFDEF FPC}PShellExecuteInfo{$ENDIF}(@SEI)) then
-  		RaiseLastOSError;
+    if not ShellExecuteEx({$IFDEF FPC}PShellExecuteInfo{$ENDIF}(@SEI)) then
+      RaiseLastOSError;
     Halt(0);
   end;
 end;
