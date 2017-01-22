@@ -35,11 +35,11 @@ const
 
 type
   TThreadRec = record
-    Handle: THandle;
-    Id: DWORD;
-    Start: TDateTime;
-    Recv: DWORD;
-    Sent: DWORD;
+    Handle: THandle;                   // Thread handle
+    Id: DWORD;                         // Thread ID
+    Start: TDateTime;                  // Start time
+    Recv: DWORD;                       // Bytes received
+    Sent: DWORD;                       // Bytes sent
   end;
   PThreadRec = ^TThreadRec;
 
@@ -51,6 +51,9 @@ var
   drop_all: boolean = false;
   pass_all: boolean = false;
 
+{
+  Thread function
+}
 function passthr(arg: Pointer): DWORD; stdcall;
 var
   packet: array[0..MAXBUF-1] of Byte;
@@ -100,7 +103,7 @@ begin
       WriteLn(Format('Warning: failed to reinject packet (%d)', [GetLastError]));
     end;
 
-    if (tr^.Recv > (MAXDWORD - 1024)) or (tr^.Sent > (MAXDWORD - 1024)) then begin
+    if (tr^.Recv > (MAXDWORD - MAXBUF)) or (tr^.Sent > (MAXDWORD - MAXBUF)) then begin
       tr^.Start := Now;
       tr^.Sent := 0;
       tr^.Recv := 0;
@@ -305,15 +308,17 @@ begin
                 Inc(sum_recv, pThread^.Recv);
                 Inc(sum_sent, pThread^.Sent);
               end;
-              if measure_time_sec > 0 then begin
-                sent_byte_per_sec := sum_sent div measure_time_sec;
-                recv_byte_per_sec := sum_recv div measure_time_sec;
-              end else begin
-                sent_byte_per_sec := 0;
-                recv_byte_per_sec := 0;
+              if num_threads > 1 then begin
+                if measure_time_sec > 0 then begin
+                  sent_byte_per_sec := sum_sent div measure_time_sec;
+                  recv_byte_per_sec := sum_recv div measure_time_sec;
+                end else begin
+                  sent_byte_per_sec := 0;
+                  recv_byte_per_sec := 0;
+                end;
+                WriteLn(Format('Sum: Recv = %u (%u B/s), Sent = %u (%u B/s)',
+                  [sum_recv, recv_byte_per_sec, sum_sent, sent_byte_per_sec]));
               end;
-              WriteLn(Format('Sum: Recv = %u (%u B/s), Sent = %u (%u B/s)',
-                [sum_recv, recv_byte_per_sec, sum_sent, sent_byte_per_sec]));
             finally
               LeaveCriticalsection(cs);
             end;
@@ -341,7 +346,7 @@ begin
       // just TerminateThread()
       TerminateThread(hThreads[i-1]^.Handle, exit_code);
       // Wait for thread
-      WaitForSingleObject(hThreads[i-1]^.Handle, 2000);
+      WaitForSingleObject(hThreads[i-1]^.Handle, 5000);
       Dispose(hThreads[i-1]);
     end;
 

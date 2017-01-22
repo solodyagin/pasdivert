@@ -9,6 +9,9 @@
         <Projects Include="netdump.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="netlimit.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="netdump:Make">
         <MSBuild Projects="netdump.dproj" Targets="Make"/>
     </Target>
+    <Target Name="netlimit">
+        <MSBuild Projects="netlimit.dproj"/>
+    </Target>
+    <Target Name="netlimit:Clean">
+        <MSBuild Projects="netlimit.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="netlimit:Make">
+        <MSBuild Projects="netlimit.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="passthru;netdump"/>
+        <CallTarget Targets="passthru;netdump;netlimit"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="passthru:Clean;netdump:Clean"/>
+        <CallTarget Targets="passthru:Clean;netdump:Clean;netlimit:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="passthru:Make;netdump:Make"/>
+        <CallTarget Targets="passthru:Make;netdump:Make;netlimit:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
