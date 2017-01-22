@@ -55,6 +55,7 @@ begin
       0, 0, 0, 0, 0, 0,
       pAdministratorsGroup))
     then begin
+      b := false;
       if (CheckTokenMembership(0, pAdministratorsGroup, b)) then begin
         Result := b;
       end else begin
