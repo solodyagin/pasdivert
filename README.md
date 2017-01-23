@@ -40,7 +40,7 @@ as Administrator.
 * `webfilter` This is a simple web (HTTP) filter using WinDivert.
 * `netlimit` Simulates bad networks.
 
-## `webfilter`
+## webfilter
 
 Is a simple web (HTTP) filter using WinDivert created by [zerogle](https://github.com/zerogle).
 
