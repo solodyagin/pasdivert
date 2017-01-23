@@ -40,6 +40,28 @@ as Administrator.
 * `webfilter` This is a simple web (HTTP) filter using WinDivert.
 * `netlimit` Simulates bad networks.
 
+## `webfilter`
+
+Is a simple web (HTTP) filter using WinDivert created by [zerogle](https://github.com/zerogle).
+
+It works by intercepting outbound HTTP GET/POST requests and matching
+the URL against a blacklist.  If the URL is matched, we hijack the TCP
+connection, reseting the connection at the server end, and sending a
+blockpage to the browser.
+
+### Example
+
+~~~
+webfilter blacklist.txt [blacklist2.txt ...]
+~~~
+
+This `blacklist.txt` will block all HTTP requests to Google and Facebook domains.
+
+~~~
+google.com
+facebook.com
+~~~
+
 ## netlimit
 
 A Program to simulate bad networks. Can add latency and drop packets.
