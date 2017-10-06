@@ -42,7 +42,7 @@ as Administrator.
 
 ## webfilter
 
-Is a simple web (HTTP) filter using WinDivert created by [zerogle](https://github.com/zerogle).
+Is a simple web (HTTP) filter using WinDivert.
 
 It works by intercepting outbound HTTP GET/POST requests and matching
 the URL against a blacklist.  If the URL is matched, we hijack the TCP
