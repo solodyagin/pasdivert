@@ -1,4 +1,6 @@
 # pasdivert
+[![Release](https://img.shields.io/github/release/stievie/pasdivert.svg)](https://github.com/stievie/pasdivert/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/stievie/pasdivert/latest/total.svg?maxAge=3600)](https://github.com/stievie/pasdivert/releases)
 
 Pascal binding for [WinDivert](http://reqrypt.org/windivert.html).
 
