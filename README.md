@@ -9,7 +9,7 @@ This Unit can be used with Delphi and Free Pascal.
 ## WinDivert
 
 Copied from the Website: WinDivert is a user-mode packet capture-and-divert 
-package for Windows Vista, Windows 2008, Windows 7, Windows 8.
+package for Windows Vista, Windows 2008, Windows 7, Windows 8 and Windows 10.
 
 WinDivert allows user-mode applications to capture/modify/drop network packets 
 sent to/from the Windows network stack.
