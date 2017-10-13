@@ -6,8 +6,13 @@ branches:
   only:
   - master
 
-# Do not build on tags
-skip_tags: true
+# Start builds on tags only
+#skip_non_tags: true
+
+# Skipping commits
+skip_commits:
+  files:
+    - README.md
 
 # Maximum number of concurrent jobs for the project
 max_jobs: 1
@@ -15,19 +20,26 @@ max_jobs: 1
 # Fetch repository as zip archive
 shallow_clone: true
 
+# Clone directory
+clone_folder: c:\projects\pasdivert
+
 # Scripts that run after cloning repository
 install:
-  - curl -fsSL -o laz-setup.exe "https://downloads.sourceforge.net/project/lazarus/Lazarus Windows 32 bits/Lazarus 1.6.4/lazarus-1.6.4-fpc-3.0.2-win32.exe?r=&ts=1507852966&use_mirror=netix"
-  - laz-setup.exe /verysilent
-  - rd /s /q c:\lazarus\docs
-  - rd /s /q c:\lazarus\examples
+- cmd: scripts\install-lazarus.cmd
+
+cache:
+- c:\lazarus -> scripts\install-lazarus.cmd
 
 # Build scripts
 build_script:
-  - c:\lazarus\lazbuild webfilter.lpi --build-all --build-mode=Win32-Debug
+- cmd: scripts\build.cmd
 
 artifacts:
-  - path: fpc\Win32\Debug\webfilter.exe
-    name: webfilter
+- path: fpc\Win32\Release\*.exe
+  name: pasdivert-win32
+  type: WebDeployPackage
+- path: fpc\Win64\Release\*.exe
+  name: pasdivert-win64
+  type: WebDeployPackage
 
-deploy: off
+#deploy: off
