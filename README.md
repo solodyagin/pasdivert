@@ -1,7 +1,7 @@
 # pasdivert
 [![Build status](https://ci.appveyor.com/api/projects/status/l28xsxrtm0qv8asc?svg=true)](https://ci.appveyor.com/project/solodyagin/pasdivert)
-[![Release](https://img.shields.io/github/release/stievie/pasdivert.svg)](https://github.com/stievie/pasdivert/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/stievie/pasdivert/latest/total.svg?maxAge=3600)](https://github.com/stievie/pasdivert/releases)
+[![Release](https://img.shields.io/github/release/solodyagin/pasdivert.svg)](https://github.com/solodyagin/pasdivert/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/solodyagin/pasdivert/latest/total.svg?maxAge=3600)](https://github.com/solodyagin/pasdivert/releases)
 
 Pascal binding for [WinDivert](http://reqrypt.org/windivert.html).
 
