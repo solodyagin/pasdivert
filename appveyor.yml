@@ -1,45 +1,66 @@
-# Version format
-version: 1.0.{build}
-
 # Branches to build
 branches:
   only:
   - master
 
 # Start builds on tags only
-#skip_non_tags: true
+skip_non_tags: true
 
 # Skipping commits
 skip_commits:
   files:
-    - README.md
+  - README.md
 
 # Maximum number of concurrent jobs for the project
 max_jobs: 1
 
-# Fetch repository as zip archive
-shallow_clone: true
-
-# Clone directory
-clone_folder: c:\projects\pasdivert
-
 # Scripts that run after cloning repository
 install:
-- cmd: scripts\install-lazarus.cmd
-
-cache:
-- c:\lazarus -> scripts\install-lazarus.cmd
+- cmd: >-
+  echo Downloading Lazarus 1.6.4 for Windows 32 bit
+  curl -fsSL -o laz-setup.exe "https://downloads.sourceforge.net/project/lazarus/Lazarus Windows 32 bits/Lazarus 1.6.4/lazarus-1.6.4-fpc-3.0.2-win32.exe?r=&ts=1507852966&use_mirror=netix"
+  echo Installing Lazarus 1.6.4 for Windows 32 bit"
+  laz-setup.exe /verysilent
+  echo Downloading Lazarus Add-On for building 64 bit Windows applications
+  curl -fsSL -o laz-cross-setup.exe "https://downloads.sourceforge.net/project/lazarus/Lazarus Windows 32 bits/Lazarus 1.6.4/lazarus-1.6.4-fpc-3.0.2-cross-x86_64-win64-win32.exe?r=&ts=1507863403&use_mirror=10gbps-io"
+  echo Installing Lazarus Add-On for building 64 bit Windows applications
+  laz-cross-setup.exe /verysilent
+  rem rd /s /q c:\lazarus\docs
+  rem rd /s /q c:\lazarus\examples
 
 # Build scripts
 build_script:
-- cmd: scripts\build.cmd
+- cmd: >-
+  c:\lazarus\lazbuild netdump.lpi --build-all --build-mode=Win64-Release
+  c:\lazarus\lazbuild netdump.lpi --build-all --build-mode=Win32-Release
+  c:\lazarus\lazbuild netlimit.lpi --build-all --build-mode=Win64-Release
+  c:\lazarus\lazbuild netlimit.lpi --build-all --build-mode=Win32-Release
+  c:\lazarus\lazbuild passthru.lpi --build-all --build-mode=Win64-Release
+  c:\lazarus\lazbuild passthru.lpi --build-all --build-mode=Win32-Release
+  c:\lazarus\lazbuild webfilter.lpi --build-all --build-mode=Win64-Release
+  c:\lazarus\lazbuild webfilter.lpi --build-all --build-mode=Win32-Release
 
+# Scripts to run after build
+after_build:
+- cmd: >-
+  7z a -tzip pasdivert-win32.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win32\Release\*.exe" WinDivert32.dll WinDivert32.sys README.md LICENSE
+  7z rn pasdivert-win32.zip WinDivert32.dll WinDivert.dll
+  7z a -tzip pasdivert-win64.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win64\Release\*.exe" WinDivert64.dll WinDivert64.sys README.md LICENSE
+  7z rn pasdivert-win64.zip WinDivert64.dll WinDivert.dll
+
+# Artifacts configuration
 artifacts:
-- path: fpc\Win32\Release\*.exe
-  name: pasdivert-win32
-  type: WebDeployPackage
-- path: fpc\Win64\Release\*.exe
-  name: pasdivert-win64
-  type: WebDeployPackage
+  # pushing all *.zip files in build directory recursively
+  - path: '**\*.zip'
 
-#deploy: off
+# Deployment configuration
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: "eU0j66hTsR4ou10kFzDoXFNj1495/CRz56XtLroAcOIGvCm407/hpffOQmswsd1W"
+  artifact: /.*\.zip/              # upload all zip packages to release assets
+  draft: false
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
