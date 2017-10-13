@@ -1,0 +1,33 @@
+# Version format
+version: 1.0.{build}
+
+# Branches to build
+branches:
+  only:
+  - master
+
+# Do not build on tags
+skip_tags: true
+
+# Maximum number of concurrent jobs for the project
+max_jobs: 1
+
+# Fetch repository as zip archive
+shallow_clone: true
+
+# Scripts that run after cloning repository
+install:
+  - curl -fsSL -o laz-setup.exe "https://downloads.sourceforge.net/project/lazarus/Lazarus Windows 32 bits/Lazarus 1.6.4/lazarus-1.6.4-fpc-3.0.2-win32.exe?r=&ts=1507852966&use_mirror=netix"
+  - laz-setup.exe /verysilent
+  - rd /s /q c:\lazarus\docs
+  - rd /s /q c:\lazarus\examples
+
+# Build scripts
+build_script:
+  - c:\lazarus\lazbuild webfilter.lpi --build-all --build-mode=Win32-Debug
+
+artifacts:
+  - path: fpc\Win32\Debug\webfilter.exe
+    name: webfilter
+
+deploy: off
