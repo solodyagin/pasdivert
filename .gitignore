@@ -12,8 +12,6 @@ fpc
 *.drc
 *.map
 *.exe
-*.dll
-*.sys
 bin/*
 *.o
 *.obj
