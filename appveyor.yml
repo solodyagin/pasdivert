@@ -15,74 +15,22 @@ skip_commits:
 max_jobs: 1
 
 # Build cache to preserve files/folders between builds
-cache: c:\lazarus -> appveyor.yml
+cache: c:\lazarus -> appveyor-install.cmd
 
 # Scripts that run after cloning repository
 install:
-- cmd: >-
-    echo if exist c:\lazarus goto :installed> laz-install.cmd
-
-    echo rem Downloading Lazarus 1.6.4 for Windows 32 bit>> laz-install.cmd
-
-    echo rem curl -fsSL -o laz-setup.exe "https://downloads.sourceforge.net/project/lazarus/Lazarus Windows 32 bits/Lazarus 1.6.4/lazarus-1.6.4-fpc-3.0.2-win32.exe?r=&ts=1507852966&use_mirror=netix">> laz-install.cmd
-
-    echo curl -fsSL -o laz-setup.exe "https://www.dropbox.com/s/xe0l2wldh4pfofu/lazarus-1.6.4-fpc-3.0.2-win32.exe?dl=1">> laz-install.cmd
-
-    echo rem Installing Lazarus 1.6.4 for Windows 32 bit>> laz-install.cmd
-
-    echo laz-setup.exe /verysilent>> laz-install.cmd
-
-    echo rem Downloading Lazarus Add-On for building 64 bit Windows applications>> laz-install.cmd
-
-    echo rem curl -fsSL -o laz-cross-setup.exe "https://downloads.sourceforge.net/project/lazarus/Lazarus Windows 32 bits/Lazarus 1.6.4/lazarus-1.6.4-fpc-3.0.2-cross-x86_64-win64-win32.exe?r=&ts=1507863403&use_mirror=10gbps-io">> laz-install.cmd
-
-    echo curl -fsSL -o laz-cross-setup.exe "https://www.dropbox.com/s/0ic204mdq4ty8dz/lazarus-1.6.4-fpc-3.0.2-cross-x86_64-win64-win32.exe?dl=1">> laz-install.cmd
-
-    echo rem Installing Lazarus Add-On for building 64 bit Windows applications>> laz-install.cmd
-
-    echo laz-cross-setup.exe /verysilent>> laz-install.cmd
-
-    echo rem rd /s /q c:\lazarus\docs>> laz-install.cmd
-
-    echo rem rd /s /q c:\lazarus\examples>> laz-install.cmd
-
-    echo :installed>> laz-install.cmd
-
-    laz-install.cmd
+  - cmd: appveyor-install.cmd
 
 # Build scripts
 build_script:
-- cmd: >-
-    c:\lazarus\lazbuild netdump.lpi --build-all --build-mode=Win64-Release
-
-    c:\lazarus\lazbuild netdump.lpi --build-all --build-mode=Win32-Release
-
-    c:\lazarus\lazbuild netlimit.lpi --build-all --build-mode=Win64-Release
-
-    c:\lazarus\lazbuild netlimit.lpi --build-all --build-mode=Win32-Release
-
-    c:\lazarus\lazbuild passthru.lpi --build-all --build-mode=Win64-Release
-
-    c:\lazarus\lazbuild passthru.lpi --build-all --build-mode=Win32-Release
-
-    c:\lazarus\lazbuild webfilter.lpi --build-all --build-mode=Win64-Release
-
-    c:\lazarus\lazbuild webfilter.lpi --build-all --build-mode=Win32-Release
-
-    c:\lazarus\lazbuild dnsdump.lpi --build-all --build-mode=Win64-Release
-
-    c:\lazarus\lazbuild dnsdump.lpi --build-all --build-mode=Win32-Release
+  - cmd: appveyor-build.cmd
 
 # Scripts to run after build
 after_build:
-- cmd: >-
-    7z a -tzip pasdivert-win32.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win32\Release\*.exe" WinDivert32.dll WinDivert32.sys README.md LICENSE
-
-    7z rn pasdivert-win32.zip WinDivert32.dll WinDivert.dll
-
-    7z a -tzip pasdivert-win64.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win64\Release\*.exe" WinDivert64.dll WinDivert64.sys README.md LICENSE
-
-    7z rn pasdivert-win64.zip WinDivert64.dll WinDivert.dll
+  - cmd: 7z a -tzip pasdivert-win32.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win32\Release\*.exe" WinDivert32.dll WinDivert32.sys README.md LICENSE
+  - cmd: 7z rn pasdivert-win32.zip WinDivert32.dll WinDivert.dll
+  - cmd: 7z a -tzip pasdivert-win64.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win64\Release\*.exe" WinDivert64.dll WinDivert64.sys README.md LICENSE
+  - cmd: 7z rn pasdivert-win64.zip WinDivert64.dll WinDivert.dll
 
 # Artifacts configuration
 artifacts:

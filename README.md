@@ -38,10 +38,11 @@ Please run these examples as Administrator. To debug them with Delphi run Delphi
 as Administrator.
 
 * `passthru` This program does nothing except divert packets and re-inject them.
-* `netdump` This is a simple traffic monitor.  It uses a WinDivert handle in SNIFF 
+* `netdump` This is a simple traffic monitor. It uses a WinDivert handle in SNIFF 
   mode. The SNIFF mode copies packets and does not block the original.
 * `webfilter` This is a simple web (HTTP) filter using WinDivert.
 * `netlimit` Simulates bad networks.
+* `dnsdump` This is a simple DNS traffic monitor.
 
 ## webfilter
 
