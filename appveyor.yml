@@ -69,6 +69,10 @@ build_script:
 
     c:\lazarus\lazbuild webfilter.lpi --build-all --build-mode=Win32-Release
 
+    c:\lazarus\lazbuild dnsdump.lpi --build-all --build-mode=Win64-Release
+
+    c:\lazarus\lazbuild dnsdump.lpi --build-all --build-mode=Win32-Release
+
 # Scripts to run after build
 after_build:
 - cmd: >-
