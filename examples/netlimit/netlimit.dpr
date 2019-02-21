@@ -28,8 +28,8 @@ uses
   SysUtils,
   Windows,
   DateUtils,
-  windivert in 'windivert.pas',
-  elevate in 'elevate.pas';
+  windivert in '..\..\windivert.pas',
+  elevate in '..\..\elevate.pas';
 
 const
   MAXBUF = $FFFF;

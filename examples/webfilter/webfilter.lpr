@@ -39,8 +39,8 @@ uses
   Windows,
   Winsock,
   Classes, regexpr,
-  windivert in 'windivert.pas',
-  elevate in 'elevate.pas';
+  windivert in '..\..\windivert.pas',
+  elevate in '..\..\elevate.pas';
 
 procedure SetBit(var Value: Byte; Index: Byte);
 begin

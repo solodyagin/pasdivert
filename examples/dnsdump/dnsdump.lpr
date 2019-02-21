@@ -20,8 +20,8 @@ uses
   Windows,
   Classes,
   WinSock,
-  windivert in 'windivert.pas',
-  elevate in 'elevate.pas';
+  windivert in '..\..\windivert.pas',
+  elevate in '..\..\elevate.pas';
 
 function IsPrint(const C: AnsiChar): Boolean;
 begin

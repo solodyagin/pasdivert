@@ -89,7 +89,7 @@ netlimit -f "outbound and udp.DstPort == 3337" -t 1 -l 1000 -d 20
 ## Compiling
 
 To compile the examples on Windows 64 with Free Pascal, download the latest 
-*32-Bit* [Lazarus](http://lazarus.freepascal.org/) distribution (at the moment of
+*32-Bit* [Lazarus](http://www.lazarus-ide.org/) distribution (at the moment of
 this writing, it's Lazarus 1.4.2 and FPC 2.6.4) and the `cross-x86_64-win64-win32` 
 crosscompile add on and install both.
 Open the project file (*.lpi), select the configuration (Win64-Debug, Win64-Release, 

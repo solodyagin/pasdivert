@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="passthru"/>
+      <Title Value="netdump"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -29,7 +29,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win64\Release"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win64\Release"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -51,7 +51,11 @@
             <LinkSmart Value="True"/>
           </Linking>
           <Other>
+            <CompilerMessages>
+              <MsgFileName Value=""/>
+            </CompilerMessages>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+            <CompilerPath Value="$(CompPath)"/>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -61,7 +65,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win32\Debug"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win32\Debug"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -81,7 +85,11 @@
             </Optimizations>
           </CodeGeneration>
           <Other>
+            <CompilerMessages>
+              <MsgFileName Value=""/>
+            </CompilerMessages>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+            <CompilerPath Value="$(CompPath)"/>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -91,7 +99,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win32\Release"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win32\Release"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -113,7 +121,11 @@
             <LinkSmart Value="True"/>
           </Linking>
           <Other>
+            <CompilerMessages>
+              <MsgFileName Value=""/>
+            </CompilerMessages>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+            <CompilerPath Value="$(CompPath)"/>
           </Other>
         </CompilerOptions>
       </Item4>
@@ -133,12 +145,13 @@
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
-        <Filename Value="passthru.dpr"/>
+        <Filename Value="netdump.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="windivert.pas"/>
+        <Filename Value="..\..\windivert.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="windivert"/>
       </Unit1>
     </Units>
   </ProjectOptions>
@@ -147,7 +160,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <UnitOutputDirectory Value="fpc\Win64\Debug"/>
+      <UnitOutputDirectory Value="..\..\fpc\Win64\Debug"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
@@ -167,7 +180,11 @@
       </Optimizations>
     </CodeGeneration>
     <Other>
+      <CompilerMessages>
+        <MsgFileName Value=""/>
+      </CompilerMessages>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+      <CompilerPath Value="$(CompPath)"/>
     </Other>
   </CompilerOptions>
   <Debugging>

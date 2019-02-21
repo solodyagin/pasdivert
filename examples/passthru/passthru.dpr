@@ -29,7 +29,7 @@ program passthru;
 uses
   SysUtils,
   Windows,
-  windivert in 'windivert.pas';
+  windivert in '..\..\windivert.pas';
 
 const
   MAXBUF = $FFFF;

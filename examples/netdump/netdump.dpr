@@ -30,7 +30,7 @@ uses
   SysUtils,
   Windows,
   Winsock,
-  windivert in 'windivert.pas';
+  windivert in '..\..\windivert.pas';
 
 const
   MAXBUF = $FFFF;

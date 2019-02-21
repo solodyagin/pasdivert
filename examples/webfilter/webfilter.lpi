@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
       <Flags>
@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="dnsdump"/>
+      <Title Value="webfilter"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -29,7 +29,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win64\Release"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win64\Release"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -61,7 +61,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win32\Debug"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win32\Debug"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -91,7 +91,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win32\Release"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win32\Release"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -133,11 +133,11 @@
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
-        <Filename Value="dnsdump.lpr"/>
+        <Filename Value="webfilter.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="windivert.pas"/>
+        <Filename Value="..\..\windivert.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
     </Units>
@@ -147,7 +147,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <UnitOutputDirectory Value="fpc\Win64\Debug"/>
+      <UnitOutputDirectory Value="..\..\fpc\Win64\Debug"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>

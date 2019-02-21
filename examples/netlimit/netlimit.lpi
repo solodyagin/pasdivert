@@ -11,7 +11,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="webfilter"/>
+      <Title Value="netlimit"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -29,7 +29,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win64\Release"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win64\Release"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -51,6 +51,9 @@
             <LinkSmart Value="True"/>
           </Linking>
           <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5024="True"/>
+            </CompilerMessages>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
           </Other>
         </CompilerOptions>
@@ -61,7 +64,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win32\Debug"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win32\Debug"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -81,6 +84,9 @@
             </Optimizations>
           </CodeGeneration>
           <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5024="True"/>
+            </CompilerMessages>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
           </Other>
         </CompilerOptions>
@@ -91,7 +97,7 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <UnitOutputDirectory Value="fpc\Win32\Release"/>
+            <UnitOutputDirectory Value="..\..\fpc\Win32\Release"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -113,6 +119,9 @@
             <LinkSmart Value="True"/>
           </Linking>
           <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx5024="True"/>
+            </CompilerMessages>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
           </Other>
         </CompilerOptions>
@@ -124,6 +133,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
+        <CommandLineParams Value="-f &quot;outbound and udp.DstPort == 3337&quot; -t 3 -l 200 -d 10"/>
       </local>
     </RunParams>
     <RequiredPackages Count="1">
@@ -133,11 +143,11 @@
     </RequiredPackages>
     <Units Count="2">
       <Unit0>
-        <Filename Value="webfilter.lpr"/>
+        <Filename Value="netlimit.dpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="windivert.pas"/>
+        <Filename Value="..\..\windivert.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
     </Units>
@@ -147,7 +157,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <UnitOutputDirectory Value="fpc\Win64\Debug"/>
+      <UnitOutputDirectory Value="..\..\fpc\Win64\Debug"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
@@ -167,6 +177,9 @@
       </Optimizations>
     </CodeGeneration>
     <Other>
+      <CompilerMessages>
+        <IgnoredMessages idx5024="True"/>
+      </CompilerMessages>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
     </Other>
   </CompilerOptions>

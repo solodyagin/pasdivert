@@ -27,10 +27,8 @@ build_script:
 
 # Scripts to run after build
 after_build:
-  - cmd: 7z a -tzip pasdivert-win32.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win32\Release\*.exe" WinDivert32.dll WinDivert32.sys README.md LICENSE
-  - cmd: 7z rn pasdivert-win32.zip WinDivert32.dll WinDivert.dll
-  - cmd: 7z a -tzip pasdivert-win64.zip "%APPVEYOR_BUILD_FOLDER%\fpc\Win64\Release\*.exe" WinDivert64.dll WinDivert64.sys README.md LICENSE
-  - cmd: 7z rn pasdivert-win64.zip WinDivert64.dll WinDivert.dll
+  - cmd: 7z a -tzip pasdivert-win32.zip .\fpc\Win32\Release\*.exe .\x86\*.dll .\x86\*.sys README.md LICENSE
+  - cmd: 7z a -tzip pasdivert-win64.zip .\fpc\Win64\Release\*.exe .\amd64\*.dll .\amd64\*.sys README.md LICENSE
 
 # Artifacts configuration
 artifacts:
