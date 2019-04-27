@@ -3,13 +3,13 @@
         <ProjectGuid>{BAAD6513-7256-4F26-A26E-BC48BCFD356D}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="passthru.dproj">
+        <Projects Include="passthru\passthru.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="netdump.dproj">
+        <Projects Include="netdump\netdump.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="netlimit.dproj">
+        <Projects Include="netlimit\netlimit.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -21,31 +21,31 @@
         </BorlandProject>
     </ProjectExtensions>
     <Target Name="passthru">
-        <MSBuild Projects="passthru.dproj"/>
+        <MSBuild Projects="passthru\passthru.dproj"/>
     </Target>
     <Target Name="passthru:Clean">
-        <MSBuild Projects="passthru.dproj" Targets="Clean"/>
+        <MSBuild Projects="passthru\passthru.dproj" Targets="Clean"/>
     </Target>
     <Target Name="passthru:Make">
-        <MSBuild Projects="passthru.dproj" Targets="Make"/>
+        <MSBuild Projects="passthru\passthru.dproj" Targets="Make"/>
     </Target>
     <Target Name="netdump">
-        <MSBuild Projects="netdump.dproj"/>
+        <MSBuild Projects="netdump\netdump.dproj"/>
     </Target>
     <Target Name="netdump:Clean">
-        <MSBuild Projects="netdump.dproj" Targets="Clean"/>
+        <MSBuild Projects="netdump\netdump.dproj" Targets="Clean"/>
     </Target>
     <Target Name="netdump:Make">
-        <MSBuild Projects="netdump.dproj" Targets="Make"/>
+        <MSBuild Projects="netdump\netdump.dproj" Targets="Make"/>
     </Target>
     <Target Name="netlimit">
-        <MSBuild Projects="netlimit.dproj"/>
+        <MSBuild Projects="netlimit\netlimit.dproj"/>
     </Target>
     <Target Name="netlimit:Clean">
-        <MSBuild Projects="netlimit.dproj" Targets="Clean"/>
+        <MSBuild Projects="netlimit\netlimit.dproj" Targets="Clean"/>
     </Target>
     <Target Name="netlimit:Make">
-        <MSBuild Projects="netlimit.dproj" Targets="Make"/>
+        <MSBuild Projects="netlimit\netlimit.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
         <CallTarget Targets="passthru;netdump;netlimit"/>

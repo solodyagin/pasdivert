@@ -25,3 +25,4 @@ Win64
 *.zip
 bpl
 dist
+*.stat
