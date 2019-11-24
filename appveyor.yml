@@ -4,7 +4,7 @@ branches:
   - master
 
 # Start builds on tags only
-skip_non_tags: true
+#skip_non_tags: true
 
 # Skipping commits
 skip_commits:

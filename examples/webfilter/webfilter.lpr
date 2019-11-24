@@ -42,11 +42,6 @@ uses
   windivert in '..\..\windivert.pas',
   elevate in '..\..\elevate.pas';
 
-procedure SetBit(var Value: Byte; Index: Byte);
-begin
-  Value := Value or (1 shl Index);
-end;
-
 const
   MAXBUF = $FFFF;
 
@@ -178,7 +173,7 @@ end;
  *}
 function passthr(arg: Pointer): DWORD; stdcall;
 var
-  addr: WINDIVERT_ADDRESS;
+  addr: TWinDivertAddress;
   packet: array[0..MAXBUF - 1] of UINT8;
   packet_len: UINT;
   ip_header: PWinDivertIpHdr;
@@ -246,7 +241,7 @@ begin
     reset.tcp.DstPort := htons(80);
     reset.tcp.SeqNum := tcp_header.SeqNum;
     reset.tcp.AckNum := tcp_header.AckNum;
-    WinDivertHelperCalcChecksums(reset, SizeOf(TPacket), 0);
+    WinDivertHelperCalcChecksums(reset, SizeOf(TPacket), @addr, 0);
     if (not WinDivertSend(handle, reset, SizeOf(TPacket), @addr, writeLen)) then
     begin
       SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
@@ -260,8 +255,13 @@ begin
     blockpage_hdr.tcp.SeqNum := tcp_header.AckNum;
     blockpage_hdr.tcp.AckNum := htonl(ntohl(tcp_header.SeqNum) + payload_len);
     Move(blockpage_hdr, blockpage[0], SizeOf(TPacket));
-    WinDivertHelperCalcChecksums(blockpage[0], blockpage_len, 0);
-    addr.Direction := UINT8(not (Boolean(addr.Direction)));     // Reverse direction.
+    WinDivertHelperCalcChecksums(blockpage[0], blockpage_len, @addr, 0);
+    // Reverse direction.
+    //addr.Direction := UINT8(not (Boolean(addr.Direction)));
+    if GetBit(addr.Direction_Reserved, 0) = 0 then
+      SetBit(addr.Direction_Reserved, 0)
+    else
+      ClearBit(addr.Direction_Reserved, 0);
     if (not WinDivertSend(handle, blockpage[0], blockpage_len, @addr, writeLen)) then
     begin
       SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
@@ -276,7 +276,7 @@ begin
     finish.tcp.DstPort := tcp_header.SrcPort;
     finish.tcp.SeqNum := htonl(ntohl(tcp_header.AckNum) + Length(block_data));
     finish.tcp.AckNum := htonl(ntohl(tcp_header.SeqNum) + payload_len);
-    WinDivertHelperCalcChecksums(finish, SizeOf(TPacket), 0);
+    WinDivertHelperCalcChecksums(finish, SizeOf(TPacket), @addr, 0);
     if (not WinDivertSend(handle, finish, SizeOf(TPacket), @addr, writeLen)) then
     begin
       SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);

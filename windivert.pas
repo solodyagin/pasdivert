@@ -1,19 +1,35 @@
 {*
  * windivert.pas
- * (C) 2014, all rights reserved,
+ * (C) 2018, all rights reserved,
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of WinDivert.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WinDivert is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * WinDivert is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *}
 
 {
@@ -25,6 +41,8 @@ unit windivert;
 {$IFDEF FPC}
   {$MODE Delphi}
 {$ENDIF}
+
+{.$DEFINE PRE1_4}
 
 interface
 
@@ -45,11 +63,27 @@ type
   PUINT = ^UINT;
 
 type
+{$IFDEF PRE1_4}
   WINDIVERT_ADDRESS = record
     IfIdx: UINT32;
     SubIfIdx: UINT32;
     Direction: UINT8;
   end;
+{$ELSE}
+  WINDIVERT_ADDRESS = record
+    Timestamp: Int64;               // Packet's timestamp (8 bytes).
+    IfIdx: UINT32;                  // Packet's interface index (4 bytes).
+    SubIfIdx: UINT32;               // Packet's sub-interface index (4 bytes).
+    //UINT8  Direction:1;           // Packet's direction.
+    //UINT8  Loopback:1;            // Packet is loopback?
+    //UINT8  Impostor:1;            // Packet is impostor?
+    //UINT8  PseudoIPChecksum:1;    // Packet has pseudo IPv4 checksum?
+    //UINT8  PseudoTCPChecksum:1;   // Packet has pseudo TCP checksum?
+    //UINT8  PseudoUDPChecksum:1;   // Packet has pseudo UDP checksum?
+    //UINT8  Reserved:2;
+    Direction_Reserved: UINT8;      // Direction + Loopback + Impostor + ... + Reserved
+  end;
+{$ENDIF}
   TWinDivertAddress = WINDIVERT_ADDRESS;
   PWinDivertAddress = ^TWinDivertAddress;
 
@@ -57,27 +91,52 @@ const
   WINDIVERT_DIRECTION_OUTBOUND = 0;
   WINDIVERT_DIRECTION_INBOUND = 1;
 
+{*
+ * Divert layers.
+ *}
 type
   WINDIVERT_LAYER = (
-    WINDIVERT_LAYER_NETWORK,
-    WINDIVERT_LAYER_NETWORK_FORWARD
+    WINDIVERT_LAYER_NETWORK = 0,        // Network layer.
+    WINDIVERT_LAYER_NETWORK_FORWARD = 1 // Network layer (forwarded packets)
   );
   TWinDivertLayer = WINDIVERT_LAYER;
 
+{*
+ * Divert flags.
+ *}
 const
   WINDIVERT_FLAG_SNIFF = 1;
   WINDIVERT_FLAG_DROP = 2;
+{$IFDEF PRE1_4}
   WINDIVERT_FLAG_NO_CHECKSUM = 1024;
+{$ELSE}
+  WINDIVERT_FLAG_DEBUG = 4;
+{$ENDIF}
 
+{*
+ * Divert parameters.
+ *}
 type
+{$IFDEF PRE1_4}
   WINDIVERT_PARAM = (
-    WINDIVERT_PARAM_QUEUE_LEN,
-    WINDIVERT_PARAM_QUEUE_TIME
+    WINDIVERT_PARAM_QUEUE_LEN  = 0, // Packet queue length.
+    WINDIVERT_PARAM_QUEUE_TIME = 1  // Packet queue time.
   );
+{$ELSE}
+  WINDIVERT_PARAM = (
+    WINDIVERT_PARAM_QUEUE_LEN  = 0, // Packet queue length.
+    WINDIVERT_PARAM_QUEUE_TIME = 1, // Packet queue time.
+    WINDIVERT_PARAM_QUEUE_SIZE = 2  // Packet queue size.
+  );
+{$ENDIF}
   TWinDivertParam = WINDIVERT_PARAM;
 
 const
+{$IFDEF PRE1_4}
   WINDIVERT_PARAM_MAX = WINDIVERT_PARAM_QUEUE_TIME;
+{$ELSE}
+  WINDIVERT_PARAM_MAX = WINDIVERT_PARAM_QUEUE_SIZE;
+{$ENDIF}
 
 {*
  * Open a WinDivert handle.
@@ -87,7 +146,7 @@ function WinDivertOpen(
   layer: TWinDivertLayer;
   priority: INT16;
   flags: UINT64
-): THandle; cdecl; external 'windivert.dll';
+): THandle; cdecl; external 'WinDivert.dll';
 
 {*
  * Receive (read) a packet from a WinDivert handle.
@@ -98,7 +157,7 @@ function WinDivertRecv(
   packetLen: UINT;
   out pAdd: TWinDivertAddress;
   out readLen: UINT
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Receive (read) a packet from a WinDivert handle.
@@ -111,7 +170,7 @@ function WinDivertRecvEx(
   out pAdd: TWinDivertAddress;
   out readLen: UINT;
   var lpOverlapped: TOverlapped
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Send (write/inject) a packet to a WinDivert handle.
@@ -122,7 +181,7 @@ function WinDivertSend(
   packetLen: UINT;
   pAdd: PWinDivertAddress;
   out writeLen: UINT
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Send (write/inject) a packet to a WinDivert handle.
@@ -135,14 +194,14 @@ function WinDivertSendEx(
   pAdd: PWinDivertAddress;
   out writeLen: UINT;
   var lpOverlapped: TOverlapped
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Close a WinDivert handle.
  *}
 function WinDivertClose(
   handle: THandle
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Set a WinDivert handle parameter.
@@ -151,7 +210,7 @@ function WinDivertSetParam(
   handle: THandle;
   param: TWinDivertParam;
   value: UINT64
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Get a WinDivert handle parameter.
@@ -160,7 +219,7 @@ function WinDivertGetParam(
   handle: THandle;
   param: TWinDivertParam;
   out pValue: UINT64
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {****************************************************************************}
 {* WINDIVERT HELPER API                                                     *}
@@ -171,18 +230,20 @@ function WinDivertGetParam(
  *}
 type
   // http://rvelthuis.de/articles/articles-convert.html#bitfields
-  // SizeOf(WINDIVERT_IPHDR) = 20
+  // SizeOf(WINDIVERT_IPHDR) = 20 bytes
   WINDIVERT_IPHDR = record
-    HdrLength_Version: UINT8; // 1
-    TOS: UINT8;              // 1
-    Length: UINT16;           // 2
-    Id: UINT16;               // 2
-    FragOff0: UINT16;         // 2
-    TTL: UINT8;               // 1
-    Protocol: UINT8;          // 1
-    Checksum: UINT16;         // 2
-    SrcAddr: UINT32;          // 4
-    DstAddr: UINT32;          // 4
+    //UINT8  HdrLength:4;
+    //UINT8  Version:4;
+    HdrLength_Version: UINT8; // 1 byte - HdrLength (4 bit) + Version (4 bit)
+    TOS: UINT8;               // 1 byte
+    Length: UINT16;           // 2 bytes
+    Id: UINT16;               // 2 bytes
+    FragOff0: UINT16;         // 2 bytes
+    TTL: UINT8;               // 1 byte
+    Protocol: UINT8;          // 1 byte
+    Checksum: UINT16;         // 2 bytes
+    SrcAddr: UINT32;          // 4 bytes
+    DstAddr: UINT32;          // 4 bytes
   end;
   TWinDivertIpHdr = WINDIVERT_IPHDR;
   PWinDivertIpHdr = ^TWinDivertIpHdr;
@@ -197,12 +258,12 @@ function WINDIVERT_IPHDR_GET_RESERVED(hdr: PWinDivertIpHdr): UINT16;
 type
   // SizeOf(WINDIVERT_IPV6HDR) = 40
   WINDIVERT_IPV6HDR = record
-//    UINT8  TrafficClass0:4;
-//    UINT8  Version:4;
-    TrafficClass0_Version: UINT8;
-//    UINT8  FlowLabel0:4;
-//    UINT8  TrafficClass1:4;
-    FlowLabel0_TrafficClass1: UINT8;
+    //UINT8  TrafficClass0:4;
+    //UINT8  Version:4;
+    TrafficClass0_Version: UINT8; // TrafficClass0 + Version
+    //UINT8  FlowLabel0:4;
+    //UINT8  TrafficClass1:4;
+    FlowLabel0_TrafficClass1: UINT8; // FlowLabel0 + TrafficClass1
     FlowLabel1: UINT16;
     Length: UINT16;
     NextHdr: UINT8;
@@ -269,9 +330,9 @@ type
     DstPort: UINT16;
     SeqNum: UINT32;
     AckNum: UINT32;
-//    UINT16 Reserved1:4;
-//    UINT16 HdrLength:4;
-    Reserved1_HdrLength: UINT8;
+    //UINT16 Reserved1:4;
+    //UINT16 HdrLength:4;
+    Reserved1_HdrLength: UINT8; // Reserved1 + HdrLength
     Flags: UINT8;
     Window: UINT16;
     Checksum: UINT16;
@@ -316,7 +377,7 @@ function WinDivertHelperParsePacket(
   ppUdpHdr: PPWinDivertUdpHdr;
   ppData: PPointer;
   pDataLen: PUINT
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Parse an IPv4 address.
@@ -324,7 +385,7 @@ function WinDivertHelperParsePacket(
 function WinDivertHelperParseIPv4Address(
   const addrStr: PAnsiChar;
   out pAddr: UINT32
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Parse an IPv6 address.
@@ -332,22 +393,58 @@ function WinDivertHelperParseIPv4Address(
 function WinDivertHelperParseIPv6Address(
   const addrStr: PAnsiChar;
   out pAddr: UINT32
-): BOOL; cdecl; external 'windivert.dll';
+): BOOL; cdecl; external 'WinDivert.dll';
 
 {*
  * Calculate IPv4/IPv6/ICMP/ICMPv6/TCP/UDP checksums.
  *}
+{$IFDEF PRE1_4}
 function WinDivertHelperCalcChecksums(
   var pPacket;
   packetLen: UINT;
   flags: UINT64
-): UINT; cdecl; external 'windivert.dll';
+): UINT; cdecl; external 'WinDivert.dll';
+{$ELSE}
+function WinDivertHelperCalcChecksums(
+  var pPacket;
+  packetLen: UINT;
+  pAdd: PWinDivertAddress;
+  flags: UINT64
+): UINT; cdecl; external 'WinDivert.dll';
+{$ENDIF}
 
 // Helper
+function GetBit(const Value: Byte; Index: Byte): Byte;
+procedure SetBit(var Value: Byte; Index: Byte);
+procedure ClearBit(var Value: Byte; Index: Byte);
+function GetAddrDirection(const pAddr: PWinDivertAddress): UINT8;
 procedure Get4Bits(const X: UINT8; out Lower, Upper: UINT8);
-function GetTcpHdrFlags(const TcpHdr: PWinDivertTcpHdr; out Reserved2: UINT8): TTcpHdrFlags;
+function GetTcpHdrFlags(const pTcpHdr: PWinDivertTcpHdr; out Reserved2: UINT8): TTcpHdrFlags;
 
 implementation
+
+function GetBit(const Value: Byte; Index: Byte): Byte;
+begin
+  Result := Value and (1 shl Index);
+end;
+
+procedure SetBit(var Value: Byte; Index: Byte);
+begin
+  Value := Value or (1 shl Index);
+end;
+
+procedure ClearBit(var Value: Byte; Index: Byte);
+begin
+  Value := Value and not (1 shl Index);
+end;
+
+function GetAddrDirection(const pAddr: PWinDivertAddress): UINT8;
+begin
+  if pAddr <> nil then
+    Result := GetBit(pAddr^.Direction_Reserved, 0)
+  else
+    Result := 0;
+end;
 
 {
   Split one 8 Bit value (Byte) into two 4 Bit values.
@@ -360,28 +457,28 @@ begin
   Lower := X - (Upper shl 4);
 end;
 
-function GetTcpHdrFlags(const TcpHdr: PWinDivertTcpHdr; out Reserved2: UINT8): TTcpHdrFlags;
+function GetTcpHdrFlags(const pTcpHdr: PWinDivertTcpHdr; out Reserved2: UINT8): TTcpHdrFlags;
 begin
   Result := [];
-  if TcpHdr = nil then
+  if pTcpHdr = nil then
     Exit;
 
-  if TcpHdr^.Flags and TCPHDR_FLAG_FIN = TCPHDR_FLAG_FIN then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_FIN = TCPHDR_FLAG_FIN then
     Include(Result, fFin);
-  if TcpHdr^.Flags and TCPHDR_FLAG_SYN = TCPHDR_FLAG_SYN then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_SYN = TCPHDR_FLAG_SYN then
     Include(Result, fSyn);
-  if TcpHdr^.Flags and TCPHDR_FLAG_RST = TCPHDR_FLAG_RST then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_RST = TCPHDR_FLAG_RST then
     Include(Result, fRst);
-  if TcpHdr^.Flags and TCPHDR_FLAG_PSH = TCPHDR_FLAG_PSH then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_PSH = TCPHDR_FLAG_PSH then
     Include(Result, fPsh);
-  if TcpHdr^.Flags and TCPHDR_FLAG_ACK = TCPHDR_FLAG_ACK then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_ACK = TCPHDR_FLAG_ACK then
     Include(Result, fAck);
-  if TcpHdr^.Flags and TCPHDR_FLAG_URG = TCPHDR_FLAG_URG then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_URG = TCPHDR_FLAG_URG then
     Include(Result, fUrg);
   Reserved2 := 0;
-  if TcpHdr^.Flags and TCPHDR_FLAG_RES20 = TCPHDR_FLAG_RES20 then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_RES20 = TCPHDR_FLAG_RES20 then
     Inc(Reserved2);
-  if TcpHdr^.Flags and TCPHDR_FLAG_RES21 = TCPHDR_FLAG_RES21 then
+  if pTcpHdr^.Flags and TCPHDR_FLAG_RES21 = TCPHDR_FLAG_RES21 then
     Inc(Reserved2, 2);
 end;
 

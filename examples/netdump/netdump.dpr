@@ -141,7 +141,8 @@ begin
       // Dump packet info:
       WriteLn;
       SetConsoleTextAttribute(console, FOREGROUND_RED);
-      WriteLn(Format('Packet [Direction=%d IfIdx=%d SubIfIdx=%d]', [addr.Direction, addr.IfIdx, addr.SubIfIdx]));
+      WriteLn(Format('Packet [Direction=%d IfIdx=%d SubIfIdx=%d]', [GetAddrDirection(@addr), addr.IfIdx,
+        addr.SubIfIdx]));
 
       if (ip_header <> nil) then begin
         SetConsoleTextAttribute(console, FOREGROUND_GREEN or FOREGROUND_RED);
