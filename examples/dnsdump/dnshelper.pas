@@ -1,3 +1,7 @@
+{*
+ * Some routines and classes based on components from Ararat Synapse project
+ * by Lukas Gebauer (http://www.ararat.cz/synapse/)
+ *}
 unit dnshelper;
 
 {$IFDEF FPC}

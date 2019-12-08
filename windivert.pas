@@ -408,7 +408,7 @@ function WinDivertHelperCalcChecksums(
 function WinDivertHelperCalcChecksums(
   var pPacket;
   packetLen: UINT;
-  pAdd: PWinDivertAddress;
+  pAddr: PWinDivertAddress;
   flags: UINT64
 ): UINT; cdecl; external 'WinDivert.dll';
 {$ENDIF}

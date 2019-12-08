@@ -1,15 +1,15 @@
 # Branches to build
-branches:
-  only:
-  - master
+# branches:
+  # only:
+  # - master
 
 # Start builds on tags only
-#skip_non_tags: true
+# skip_non_tags: true
 
 # Skipping commits
-skip_commits:
-  files:
-  - README.md
+# skip_commits:
+  # files:
+  # - README.md
 
 # Maximum number of concurrent jobs for the project
 max_jobs: 1
@@ -27,8 +27,8 @@ build_script:
 
 # Scripts to run after build
 after_build:
-  - cmd: 7z a -tzip pasdivert-win32.zip .\fpc\Win32\Release\*.exe .\x86\*.dll .\x86\*.sys README.md LICENSE
-  - cmd: 7z a -tzip pasdivert-win64.zip .\fpc\Win64\Release\*.exe .\amd64\*.dll .\amd64\*.sys README.md LICENSE
+  - cmd: 7z a -tzip pasdivert-win32.zip .\fpc\Win32\Release\*.exe .\win32\*.dll .\win32\*.sys README.md LICENSE
+  - cmd: 7z a -tzip pasdivert-win64.zip .\fpc\Win64\Release\*.exe .\win64\*.dll .\win64\*.sys README.md LICENSE
 
 # Artifacts configuration
 artifacts:

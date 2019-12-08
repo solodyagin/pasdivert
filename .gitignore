@@ -18,8 +18,8 @@ bin/*
 *.ppu
 *.bak
 *.compiled
-Win32
-Win64
+#Win32
+#Win64
 *.vlb
 *.tvsconfig
 *.zip

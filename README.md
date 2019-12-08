@@ -26,10 +26,10 @@ You need the binary distribution from the WinDivert homepage. Since we use it
 with Pascal/Delphi you can use any distribution (VS, DDK or MinGW), this does 
 not matter because we do not need the lib files for linking.
 
-On Windows 64 put `amd64\WinDivert64.sys` and `amd64\WinDivert.dll` in the 
+On Windows 64 put `win64\WinDivert64.sys` and `win64\WinDivert.dll` in the 
 program directory.
 
-On Windows 32 put `x86\WinDivert32.sys` and `x86\WinDivert.dll` in the 
+On Windows 32 put `win32\WinDivert32.sys` and `win32\WinDivert.dll` in the 
 program directory.
 
 ## Examples
@@ -59,9 +59,10 @@ blockpage to the browser.
 webfilter blacklist.txt [blacklist2.txt ...]
 ~~~
 
-This `blacklist.txt` will block all HTTP requests to Google and Facebook domains.
+This `blacklist.txt` will block all HTTP requests to example.com, Google and Facebook domains.
 
 ~~~
+example.com
 google.com
 facebook.com
 ~~~
