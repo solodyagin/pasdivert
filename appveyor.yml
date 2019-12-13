@@ -39,7 +39,7 @@ artifacts:
 deploy:
   provider: GitHub
   auth_token:
-    secure: "eU0j66hTsR4ou10kFzDoXFNj1495/CRz56XtLroAcOIGvCm407/hpffOQmswsd1W"
+    secure: "35qr347m0Fo0Uxjkd8J0nLDy2JhX371FUz2AdSpKA6g7HUYdFoJzdBWyVRt3pe1v"
   artifact: /.*\.zip/              # upload all zip packages to release assets
   draft: false
   prerelease: false
